@@ -1,6 +1,6 @@
-﻿using GAFRI.Common;
-using Microsoft.Build.Framework;
+﻿using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
+using OpenLib.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Xml.Linq;
 
-namespace GAFRI.CustomBuildTasks
+namespace OpenLib.BuildTasks
 {
     /// <summary>
     /// The <c>NuspecGenerator</c> type provides a custom MSBuild task for
@@ -16,6 +16,11 @@ namespace GAFRI.CustomBuildTasks
     /// </summary>
     public class NuspecGenerator : Task
     {
+        /// <summary>
+        /// Defines the extension of the Nuspec file.
+        /// </summary>
+        private const string Extension = "nuspec";
+
         /// <summary>
         /// Defines a list of default files to include in the Nuspec file.
         /// </summary>
@@ -34,14 +39,19 @@ namespace GAFRI.CustomBuildTasks
         };
 
         /// <summary>
-        /// Defines the extension of the Nuspec file.
+        /// Gets or sets a reference to the code information utilities.
         /// </summary>
-        private const string Extension = "nuspec";
+        private CodeInfoUtils CodeInfoUtils { get; set; }
 
         /// <summary>
-        /// Gets or sets a reference to the IO utilities.
+        /// Gets or sets the code language used.
         /// </summary>
-        public IIOUtilities IOUtilities { get; set; }
+        private CodeLanguage CodeLang { get; set; }
+
+        /// <summary>
+        /// Gets or sets a reference to the I/O utilities.
+        /// </summary>
+        public IIoUtils IoUtils { get; set; }
 
         /// <summary>
         /// Gets or sets the directory location of the package as a required
@@ -51,7 +61,7 @@ namespace GAFRI.CustomBuildTasks
         public string PackageDir { get; set; }
 
         /// <summary>
-        /// Gets or sets the directory location of the project as a required
+        /// Gets or sets the project location of the project as a required
         /// task property.
         /// </summary>
         [Required]
@@ -65,8 +75,7 @@ namespace GAFRI.CustomBuildTasks
         public string OutputPath { get; set; }
 
         /// <summary>
-        /// Gets or sets the programming language to use as a required task
-        /// property.
+        /// Gets or sets the code language to use as a required task property.
         /// </summary>
         [Required]
         public string Language { get; set; }
@@ -86,6 +95,9 @@ namespace GAFRI.CustomBuildTasks
         /// Gets or sets an array of custom file task items from an item
         /// group as an optional task property.
         /// </summary>
+        /// <remarks>
+        /// This is only used if OverrideDefaultFiles is set to true.
+        /// </remarks>
         public ITaskItem[] CustomFiles { get; set; }
 
         /// <summary>
@@ -100,7 +112,8 @@ namespace GAFRI.CustomBuildTasks
         /// </summary>
         public NuspecGenerator()
         {
-            this.IOUtilities = new IOUtilities();
+            this.CodeInfoUtils = new CodeInfoUtils();
+            this.IoUtils = new IoUtils();
         }
 
         /// <summary>
@@ -109,17 +122,19 @@ namespace GAFRI.CustomBuildTasks
         /// <returns>A value indicating if the task completely successfully.</returns>
         public override bool Execute()
         {
-            Console.WriteLine("Executing Nuspec generator MSBuild task...");
+            Console.WriteLine("Executing NuspecGenerator MSBuild task...");
 
             if (this.PackageDir != null &&
                 this.ProjectDir != null &&
                 !string.IsNullOrWhiteSpace(this.OutputPath) &&
                 !string.IsNullOrWhiteSpace(this.Language))
             {
+                this.CodeLang = this.CodeInfoUtils.GetCodeLanguage(this.Language);
+
                 Console.WriteLine("Package directory: {0}", this.PackageDir);
                 Console.WriteLine("Project directory: {0}", this.ProjectDir);
                 Console.WriteLine("Output path: {0}", this.OutputPath);
-                Console.WriteLine("Language: {0}", this.Language);
+                Console.WriteLine("Code Language: {0}", this.CodeLang.ToString());
                 Console.WriteLine("Configuration: {0}", this.Configuration);
 
                 Dictionary<string, string> attributes = this.GetAttributes();
@@ -163,49 +178,57 @@ namespace GAFRI.CustomBuildTasks
         {
             Dictionary<string, string> attributes = new Dictionary<string, string>();
 
-            if (this.Language.Equals("TSQL"))
+            switch (this.CodeLang)
             {
-                DbInfo dbInfo = new DbInfo { ProjectDir = this.ProjectDir };
+                case CodeLanguage.TSql:
+                    {
+                        DbInfo dbInfo = new DbInfo { ProjectDir = this.ProjectDir };
 
-                dbInfo.Execute();
+                        dbInfo.Execute();
 
-                attributes.Add("Id", this.GetId(dbInfo.Title));
-                attributes.Add("Description", dbInfo.Description);
-                attributes.Add("Authors", dbInfo.Company);
-                attributes.Add("Version", dbInfo.Version);
-            }
-            else if (this.Language.Equals("ETL"))
-            {
-                EtlInfo etlInfo = new EtlInfo { ProjectDir = this.ProjectDir };
+                        attributes.Add("Id", this.GetId(dbInfo.Title));
+                        attributes.Add("Description", dbInfo.Description);
+                        attributes.Add("Authors", dbInfo.Company);
+                        attributes.Add("Version", dbInfo.Version);
+                    }
+                    break;
 
-                etlInfo.Execute();
+                case CodeLanguage.Etl:
+                    {
+                        EtlInfo etlInfo = new EtlInfo { ProjectDir = this.ProjectDir };
 
-                attributes.Add("Id", this.GetId(etlInfo.Title));
-                attributes.Add("Description", etlInfo.Description);
-                attributes.Add("Authors", etlInfo.Company);
-                attributes.Add("Version", etlInfo.Version);
-            }
-            else
-            {
-                Assembly assembly = Assembly.LoadFrom(this.OutputPath);
+                        etlInfo.Execute();
 
-                attributes.Add("Id", this.GetId(assembly));
-                attributes.Add("Description", this.GetDescription(assembly));
-                attributes.Add("Authors", this.GetCompany(assembly));
-                attributes.Add("Version", this.GetVersion(assembly));
+                        attributes.Add("Id", this.GetId(etlInfo.Title));
+                        attributes.Add("Description", etlInfo.Description);
+                        attributes.Add("Authors", etlInfo.Company);
+                        attributes.Add("Version", etlInfo.Version);
+                    }
+                    break;
+
+                default:
+                    {
+                        Assembly assembly = Assembly.LoadFrom(this.OutputPath);
+
+                        attributes.Add("Id", this.GetId(assembly));
+                        attributes.Add("Description", this.GetDescription(assembly));
+                        attributes.Add("Authors", this.GetCompany(assembly));
+                        attributes.Add("Version", this.GetVersion(assembly));
+                    }
+                    break;
             }
 
             if (attributes.ContainsKey("Id"))
-                attributes["Id"] = attributes["Id"].Replace(" ", "");
+                attributes["Id"] = CleanId(attributes["Id"]);
 
             return attributes;
         }
 
         /// <summary>
-        /// Gets the identifier for the specified database.
+        /// Gets the identifier from the specified title.
         /// </summary>
-        /// <param name="title">The title of the database.</param>
-        /// <returns>The identifier of the database.</returns>
+        /// <param name="title">The title containing the identifier.</param>
+        /// <returns>The identifier from the title.</returns>
         private string GetId(string title)
         {
             if (!string.IsNullOrWhiteSpace(this.Configuration))
@@ -263,13 +286,23 @@ namespace GAFRI.CustomBuildTasks
         }
 
         /// <summary>
+        /// Cleans the specified identifier of unwanted characters.
+        /// </summary>
+        /// <param name="id">The identifier to clean.</param>
+        /// <returns>The identifier cleansed of unwanted characters.</returns>
+        private string CleanId(string id)
+        {
+            return id.Replace(" ", "");
+        }
+
+        /// <summary>
         /// Adds files to the specified Nuspec document.
         /// </summary>
         /// <param name="nuspec">The Nuspec document in which to add files to.</param>
         /// <remarks>
-        /// If the CustomFiles property is set, the default list of files will
-        /// not be added. The custom files specified will be added in their
-        /// place.
+        /// If the OverrideDefaultFiles property is set to false, the default
+        /// list of files will be added. If the CustomFiles property is set,
+        /// the custom files specified will be added in their place.
         /// </remarks>
         private void AddFiles(XDocument nuspec)
         {
@@ -303,7 +336,7 @@ namespace GAFRI.CustomBuildTasks
         /// <returns>The target directory or file based on the source.</returns>
         private string GetTarget(string source, string fileType)
         {
-            if (this.IOUtilities.IsDirectory(source))
+            if (this.IoUtils.IsDirectory(source))
                 return Path.Combine(fileType, source);
 
             return fileType;

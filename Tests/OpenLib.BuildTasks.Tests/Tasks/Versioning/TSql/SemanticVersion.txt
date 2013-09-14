@@ -1,0 +1,2 @@
+﻿[db: DbVersion("1.0.0.0")]
+[db: DbInformationalVersion("1.0.0-d")]

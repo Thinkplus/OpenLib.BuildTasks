@@ -1,12 +1,13 @@
-﻿using GAFRI.Common;
-using Microsoft.Build.Framework;
+﻿using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
+using OpenLib.Extensions;
+using OpenLib.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace GAFRI.CustomBuildTasks
+namespace OpenLib.BuildTasks
 {
     /// <summary>
     /// The <c>SonarVersioning</c> type provides a custom MSBuild task for
@@ -22,12 +23,12 @@ namespace GAFRI.CustomBuildTasks
         /// <summary>
         /// Defines a list of values that should be contained on a line.
         /// </summary>
-        private List<string> lineContains = new List<string>() { "sonar.projectVersion" };
+        private readonly List<string> LineContains = new List<string>() { "sonar.projectVersion" };
 
         /// <summary>
-        /// Gets or sets a reference to the IO utilities.
+        /// Gets or sets a reference to the I/O utilities.
         /// </summary>
-        public IIOUtilities IOUtilities { get; set; }
+        public IIoUtils IoUtils { get; set; }
 
         /// <summary>
         /// Gets or sets the directory location of the solution as a required
@@ -61,7 +62,7 @@ namespace GAFRI.CustomBuildTasks
         /// </summary>
         public SonarVersioning()
         {
-            this.IOUtilities = new IOUtilities();
+            this.IoUtils = new IoUtils();
         }
 
         /// <summary>
@@ -76,17 +77,17 @@ namespace GAFRI.CustomBuildTasks
             {
                 this.SetPaths();
 
-                Console.WriteLine("Attempting to apply version '{0}' to Sonar project configuration", this.OutputFilePath);
+                Console.WriteLine("Attempting to apply version '{0}' to Sonar project configuration file", this.OutputFilePath);
 
                 string contents = this.Apply(this.OutputFilePath);
 
                 if (!string.IsNullOrWhiteSpace(contents))
                 {
-                    bool wasWritten = this.IOUtilities.WriteFile(this.OutputFilePath, contents);
+                    bool applied = this.IoUtils.WriteFile(this.OutputFilePath, contents);
 
-                    if (wasWritten)
+                    if (applied)
                     {
-                        Console.WriteLine("SUCCESSFULLY applied version {0} to Sonar project configuration!", this.Version);
+                        Console.WriteLine("SUCCESSFULLY applied version {0} to Sonar project configuration file!", this.Version);
                         return true;
                     }
                 }
@@ -94,7 +95,7 @@ namespace GAFRI.CustomBuildTasks
                     Console.WriteLine("ERROR: Unable to locate Sonar project configuration file");
             }
 
-            Console.WriteLine("FAILED to apply version to Sonar project configuration");
+            Console.WriteLine("FAILED to apply version to Sonar project configuration file");
 
             return false;
         }
@@ -108,7 +109,7 @@ namespace GAFRI.CustomBuildTasks
         {
             this.OutputFilePath = Path.Combine(this.SolutionDir, SonarProjectConfig);
 
-            if (!(new FileInfo(this.OutputFilePath).Exists))
+            if (!this.IoUtils.FileExists(this.OutputFilePath))
             {
                 this.OutputFilePath = Path.Combine(this.ProjectDir, SonarProjectConfig);
             }
@@ -123,9 +124,9 @@ namespace GAFRI.CustomBuildTasks
         /// <returns>The updated contents of the Sonar project configuration file.</returns>
         private string Apply(string path)
         {
-            if (!string.IsNullOrWhiteSpace(path) && (new FileInfo(path).Exists))
+            if (!string.IsNullOrWhiteSpace(path) && this.IoUtils.FileExists(path))
             {
-                using (FileStream stream = this.IOUtilities.ReadFileAsStream(path))
+                using (FileStream stream = this.IoUtils.ReadFileAsStream(path))
                 {
                     if (stream != null)
                     {
@@ -139,7 +140,7 @@ namespace GAFRI.CustomBuildTasks
                                 {
                                     string data = reader.ReadLine();
 
-                                    if (data.ContainedIn(lineContains))
+                                    if (data.ContainedIn(LineContains))
                                         data = this.Format(data);
 
                                     contents.AppendLine(data);

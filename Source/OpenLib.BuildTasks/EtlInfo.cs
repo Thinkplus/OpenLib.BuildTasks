@@ -35,7 +35,7 @@ namespace OpenLib.BuildTasks
         /// <summary>
         /// Defines a list of values that not should be contained on a line.
         /// </summary>
-        private List<string> LineNotContains = new List<string>() { "//", "--" };
+        private readonly List<string> LineNotContains = new List<string>() { "//", "--" };
 
         /// <summary>
         /// Defines the first version attribute found in the ETL

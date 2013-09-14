@@ -1,13 +1,14 @@
-﻿using GAFRI.Common;
-using Microsoft.Build.Framework;
+﻿using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
+using OpenLib.Extensions;
+using OpenLib.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace GAFRI.CustomBuildTasks
+namespace OpenLib.BuildTasks
 {
     /// <summary>
     /// The <c>Versioning</c> type provides a custom MSBuild task for
@@ -16,20 +17,14 @@ namespace GAFRI.CustomBuildTasks
     public class Versioning : Task
     {
         /// <summary>
-        /// Defines a dictionary of supported version info files.
+        /// Defines the semantic versioning indicator.
         /// </summary>
-        private Dictionary<string, string> supportedVersionInfo = new Dictionary<string, string>
-        {
-            { "CS", @"Properties\AssemblyInfo.cs" },
-            { "TSQL", @"Properties\DbInfo.db" },
-            { "ETL", "EtlInfo.etl" },
-            { "VB", @"My Project\AssemblyInfo.vb" }
-        };
+        private const string SemanticVersioningIndicator = "-d";
 
         /// <summary>
         /// Defines a list of values that should be contained on a line.
         /// </summary>
-        private List<String> lineContains = new List<String>()
+        private readonly List<string> LineContains = new List<string>()
         {
             "AssemblyVersion",
             "AssemblyFileVersion",
@@ -43,17 +38,17 @@ namespace GAFRI.CustomBuildTasks
         /// <summary>
         /// Defines a list of values that not should be contained on a line.
         /// </summary>
-        private List<string> lineNotContains = new List<string>() { "//", "'" };
+        private readonly List<string> LineNotContains = new List<string>() { "//", "'" };
 
         /// <summary>
         /// Defines a list of values that should have versions to exclude.
         /// </summary>
-        private List<string> versionsToExclude = new List<string>() { "AssemblyFileVersion" };
+        private readonly List<string> VersionsToExclude = new List<string>() { "AssemblyFileVersion" };
 
         /// <summary>
         /// Defines a list of values that indicate semantic versioning.
         /// </summary>
-        private List<string> semanticVersioning = new List<string>()
+        private readonly List<string> SemanticVersioning = new List<string>()
         {
             "AssemblyInformationalVersion",
             "DbInformationalVersion",
@@ -61,14 +56,19 @@ namespace GAFRI.CustomBuildTasks
         };
 
         /// <summary>
-        /// Defines the semantic versioning indicator.
+        /// Gets or sets a reference to the code information utilities.
         /// </summary>
-        private const string semanticVersioningIndicator = "-d";
+        private CodeInfoUtils CodeInfoUtils { get; set; }
 
         /// <summary>
-        /// Gets or sets a reference to the IO utilities.
+        /// Gets or sets the code language used.
         /// </summary>
-        public IIOUtilities IOUtilities { get; set; }
+        private CodeLanguage CodeLang { get; set; }
+
+        /// <summary>
+        /// Gets or sets a reference to the I/O utilities.
+        /// </summary>
+        public IIoUtils IoUtils { get; set; }
 
         /// <summary>
         /// Gets or sets the directory location of the project as a required
@@ -78,16 +78,10 @@ namespace GAFRI.CustomBuildTasks
         public string ProjectDir { get; set; }
 
         /// <summary>
-        /// Gets or sets the programming language to use as a required task
-        /// property.
+        /// Gets or sets the code language to use as a required task property.
         /// </summary>
         [Required]
         public string Language { get; set; }
-
-        /// <summary>
-        /// Gets or sets the version number part as an optional task property.
-        /// </summary>
-        public string VersionPart { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating if the version is a release
@@ -112,6 +106,25 @@ namespace GAFRI.CustomBuildTasks
         /// version is created as an optional task property.
         /// </summary>
         public string NewDevelopmentVersion { get; set; }
+
+        /// <summary>
+        /// Gets or sets the version number part as an optional task property.
+        /// </summary>
+        public string VersionPart { get; set; }
+
+        /// <summary>
+        /// Gets or sets the path to the version info file as a task output
+        /// property.
+        /// </summary>
+        [Output]
+        public string VersionInfoPath { get; set; }
+
+        /// <summary>
+        /// Gets or sets the path to the output file that contains the full
+        /// version number as a task output property.
+        /// </summary>
+        [Output]
+        public string OutputFilePath { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating if the full version is semantic
@@ -141,25 +154,12 @@ namespace GAFRI.CustomBuildTasks
         public string NextNewDevelopmentVersion { get; set; }
 
         /// <summary>
-        /// Gets or sets the path to the version info file as a task output
-        /// property.
-        /// </summary>
-        [Output]
-        public string VersionInfoPath { get; set; }
-
-        /// <summary>
-        /// Gets or sets the path to the output file that contains the full
-        /// version number as a task output property.
-        /// </summary>
-        [Output]
-        public string OutputFilePath { get; set; }
-
-        /// <summary>
         /// Creates a new instance of the <c>Versioning</c> class.
         /// </summary>
         public Versioning()
         {
-            this.IOUtilities = new IOUtilities();
+            this.CodeInfoUtils = new CodeInfoUtils();
+            this.IoUtils = new IoUtils();
         }
 
         /// <summary>
@@ -170,8 +170,10 @@ namespace GAFRI.CustomBuildTasks
         {
             Console.WriteLine("Executing Versioning MSBuild task...");
 
-            if (this.ProjectDir != null)
+            if (this.ProjectDir != null && this.Language != null)
             {
+                this.CodeLang = this.CodeInfoUtils.GetCodeLanguage(this.Language);
+
                 this.SetPaths();
 
                 Console.WriteLine("Attempting to version '{0}'", this.OutputFilePath);
@@ -180,11 +182,11 @@ namespace GAFRI.CustomBuildTasks
 
                 if (!string.IsNullOrWhiteSpace(contents))
                 {
-                    Boolean wasWritten = this.IOUtilities.WriteFile(this.OutputFilePath, contents);
+                    bool applied = this.IoUtils.WriteFile(this.OutputFilePath, contents);
 
-                    if (wasWritten)
+                    if (applied)
                     {
-                        Console.WriteLine("SUCCESSFULLY applied version {0}!", this.Version);
+                        Console.WriteLine("SUCCESSFULLY applied version '{0}'!", this.Version);
                         return true;
                     }
                 }
@@ -198,21 +200,21 @@ namespace GAFRI.CustomBuildTasks
         }
 
         /// <summary>
-        /// Sets the version info path for the defined programming language and
-        /// output file path based on the version info path.
+        /// Sets the version info path for the defined code language and output
+        /// file path based on the version info path.
         /// </summary>
         private void SetPaths()
         {
             if (string.IsNullOrWhiteSpace(this.VersionInfoPath))
             {
-                this.VersionInfoPath = supportedVersionInfo[this.Language];
+                this.VersionInfoPath = this.CodeInfoUtils.GetCodeVersionFile(this.CodeLang);
             }
 
             this.OutputFilePath = Path.Combine(this.ProjectDir, this.VersionInfoPath);
         }
 
         /// <summary>
-        /// Reads the version info file into a stream, applies the version
+        /// Reads the version info file into a stream, applies the version,
         /// optionally using the specified verion number part, and returns the
         /// contents of the version info file so it can be overwritten with
         /// the full version number.
@@ -222,9 +224,9 @@ namespace GAFRI.CustomBuildTasks
         /// <returns>The updated contents of the version info file.</returns>
         private string Apply(string path, string versionPart)
         {
-            if (!string.IsNullOrWhiteSpace(path) && (new FileInfo(path).Exists))
+            if (!string.IsNullOrWhiteSpace(path) && this.IoUtils.FileExists(path))
             {
-                using (FileStream stream = this.IOUtilities.ReadFileAsStream(path))
+                using (FileStream stream = this.IoUtils.ReadFileAsStream(path))
                 {
                     if (stream != null)
                     {
@@ -238,13 +240,13 @@ namespace GAFRI.CustomBuildTasks
                                 {
                                     string data = reader.ReadLine();
 
-                                    if (!data.ContainedIn(lineNotContains) && data.ContainedIn(lineContains))
+                                    if (!data.ContainedIn(LineNotContains) && data.ContainedIn(LineContains))
                                     {
                                         this.SetVersionType(data);
 
                                         data = this.Format(data, versionPart);
 
-                                        if (!data.ContainedIn(versionsToExclude))
+                                        if (!data.ContainedIn(VersionsToExclude))
                                         {
                                             this.Version = this.GetVersion(data);
                                         }
@@ -275,7 +277,7 @@ namespace GAFRI.CustomBuildTasks
         /// <param name="data">The data containing the version number.</param>
         private void SetVersionType(string data)
         {
-            if (data.ContainedIn(semanticVersioning))
+            if (data.ContainedIn(SemanticVersioning))
             {
                 this.IsSemanticVersion = true;
             }
@@ -292,7 +294,7 @@ namespace GAFRI.CustomBuildTasks
         {
             string version = data;
 
-            if (!version.ContainedIn(versionsToExclude))
+            if (!version.ContainedIn(VersionsToExclude))
             {
                 if (!this.IsSemanticVersion)
                 {
@@ -352,9 +354,9 @@ namespace GAFRI.CustomBuildTasks
         {
             string version = data.Replace("*", "0");
 
-            if (version.Contains(semanticVersioningIndicator))
+            if (version.Contains(SemanticVersioningIndicator))
             {
-                int index = version.IndexOf(semanticVersioningIndicator) + semanticVersioningIndicator.Length;
+                int index = version.IndexOf(SemanticVersioningIndicator) + SemanticVersioningIndicator.Length;
 
                 version = version.Insert(index, DateTime.Now.ToString("yyyyMMddHHmm"));
             }
@@ -372,14 +374,14 @@ namespace GAFRI.CustomBuildTasks
         {
             string version = data.Replace("*", "0");
 
-            if (version.Contains(semanticVersioningIndicator))
+            if (version.Contains(SemanticVersioningIndicator))
             {
                 if (!string.IsNullOrWhiteSpace(this.ReleaseVersion))
                 {
-                    version = version.Replace(this.GetVersion(version), this.ReleaseVersion).Replace(semanticVersioningIndicator, "");
+                    version = version.Replace(this.GetVersion(version), this.ReleaseVersion).Replace(SemanticVersioningIndicator, "");
                 }
                 else
-                    version = version.Replace(semanticVersioningIndicator, "");
+                    version = version.Replace(SemanticVersioningIndicator, "");
             }
 
             return version;
@@ -400,16 +402,16 @@ namespace GAFRI.CustomBuildTasks
             string value = data.Substring(startIndex, endIndex - startIndex);
             string version = data;
 
-            if (version.ContainedIn(semanticVersioning))
+            if (version.ContainedIn(SemanticVersioning))
             {
-                if (newVersion.Contains(semanticVersioningIndicator))
+                if (newVersion.Contains(SemanticVersioningIndicator))
                     version = version.Replace(value, newVersion);
                 else
-                    version = version.Replace(value, string.Concat(newVersion, semanticVersioningIndicator));
+                    version = version.Replace(value, string.Concat(newVersion, SemanticVersioningIndicator));
             }
             else
             {
-                version = version.Replace(value, string.Concat(newVersion.Replace(semanticVersioningIndicator, ""), ".0"));
+                version = version.Replace(value, string.Concat(newVersion.Replace(SemanticVersioningIndicator, ""), ".0"));
             }
 
             return version;
@@ -440,7 +442,7 @@ namespace GAFRI.CustomBuildTasks
         {
             string version = this.Version;
 
-            if (version.Contains(semanticVersioningIndicator))
+            if (version.Contains(SemanticVersioningIndicator))
                 version = version.Substring(0, version.IndexOf("-"));
 
             string[] versionParts = version.Split('.');
@@ -452,7 +454,7 @@ namespace GAFRI.CustomBuildTasks
             }
 
             this.NextReleaseVersion = version;
-            this.NextNewDevelopmentVersion = string.Concat(versionParts.Join("."), semanticVersioningIndicator);
+            this.NextNewDevelopmentVersion = string.Concat(versionParts.Join("."), SemanticVersioningIndicator);
         }
     }
 }
