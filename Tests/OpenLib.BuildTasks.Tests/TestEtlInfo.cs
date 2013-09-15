@@ -5,7 +5,7 @@ namespace OpenLib.BuildTasks.Tests
     [TestFixture]
     public class TestEtlInfo
     {
-        private const string EtlInfoPath = @"Tasks\EtlInfo\{0}";
+        private const string InfoPath = @"Tasks\EtlInfo\{0}";
 
         private EtlInfo task;
 
@@ -17,7 +17,7 @@ namespace OpenLib.BuildTasks.Tests
 
         private string Get(string path)
         {
-            return string.Format(EtlInfoPath, path);
+            return string.Format(InfoPath, path);
         }
 
         [Test]
@@ -37,7 +37,7 @@ namespace OpenLib.BuildTasks.Tests
         public void TestExcecutionObtainsEtlInfoWithVersion()
         {
             // setup
-            task.EtlInfoPath = this.Get("Version.txt");
+            task.InfoPath = this.Get("Version.txt");
 
             // execute
             bool result = task.Execute();
@@ -54,7 +54,7 @@ namespace OpenLib.BuildTasks.Tests
         public void TestExcecutionObtainsEtlInfoWithSemanticVersion()
         {
             // setup
-            task.EtlInfoPath = this.Get("SemanticVersion.txt");
+            task.InfoPath = this.Get("SemanticVersion.txt");
 
             // execute
             bool result = task.Execute();

@@ -5,7 +5,7 @@ namespace OpenLib.BuildTasks.Tests
     [TestFixture]
     public class TestDbInfo
     {
-        private const string DbInfoPath = @"Tasks\DbInfo\{0}";
+        private const string InfoPath = @"Tasks\DbInfo\{0}";
 
         private DbInfo task;
 
@@ -17,7 +17,7 @@ namespace OpenLib.BuildTasks.Tests
 
         private string Get(string path)
         {
-            return string.Format(DbInfoPath, path);
+            return string.Format(InfoPath, path);
         }
 
         [Test]
@@ -37,7 +37,7 @@ namespace OpenLib.BuildTasks.Tests
         public void TestExecutionObtainsDbInfoWithVersion()
         {
             // setup
-            task.DbInfoPath = this.Get("Version.txt");
+            task.InfoPath = this.Get("Version.txt");
 
             // execute
             bool result = task.Execute();
@@ -54,7 +54,7 @@ namespace OpenLib.BuildTasks.Tests
         public void TestExecutionObtainsDbInfoWithSemanticVersion()
         {
             // setup
-            task.DbInfoPath = this.Get("SemanticVersion.txt");
+            task.InfoPath = this.Get("SemanticVersion.txt");
 
             // execute
             bool result = task.Execute();
