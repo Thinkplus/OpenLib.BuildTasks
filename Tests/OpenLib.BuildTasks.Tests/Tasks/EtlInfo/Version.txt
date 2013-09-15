@@ -1,0 +1,24 @@
+﻿[etl: EtlTitle("MyETL")]
+[etl: EtlDescription("My ETL Package")]
+[etl: EtlConfiguration("")]
+[etl: EtlCompany("Chris Jaehnen (CJ)")]
+[etl: EtlProduct("MyETL")]
+[etl: EtlCopyright("Copyright © CJ 2013")]
+[etl: EtlTrademark("")]
+[etl: EtlCulture("")]
+
+// Version information for an ETL consists of the following values:
+//
+//      Major Version
+//      Minor Version 
+//      Revision
+//
+// This adheres to the Semantic Versioning specification
+//
+// You can specify a release version or set a development version as shown below:
+//
+// [etl: EtlInformationalVersion("1.0.0-d")] // Development version
+// [etl: EtlInformationalVersion("1.0.0")]   // Release version
+//
+
+[etl: EtlVersion("1.0.0.0")]

@@ -10,7 +10,7 @@ namespace OpenLib.BuildTasks.Tests
     [TestFixture]
     public class TestNuspecGenerator
     {
-        private const string ProjectDir = @"Tasks\NuspecGenerator";
+        private const string ProjectDir = @"Tasks\NuspecGenerator\";
         private const string Assembly = "OpenLib.BuildTasks.dll";
         private const string Configuration = "Debug";
 
@@ -123,10 +123,53 @@ namespace OpenLib.BuildTasks.Tests
         }
 
         [Test]
-        public void TestExecutionGeneratesNuspecFileForAssembly()
+        public void TestExecutionGeneratesNuspecFileForAssemblyVersion()
         {
             // setup
             // see SetUp
+
+            // execute
+            bool result = task.Execute();
+
+            // assert
+            Assert.IsTrue(result);
+            Assert.IsTrue(fileTestHelper.FileExists(task.NuspecFile));
+        }
+
+        [Test]
+        public void TestExecutionGeneratesNuspecFileForAssemblyVersionWithoutConfiguation()
+        {
+            // setup
+            task.Configuration = null;
+
+            // execute
+            bool result = task.Execute();
+
+            // assert
+            Assert.IsTrue(result);
+            Assert.IsTrue(fileTestHelper.FileExists(task.NuspecFile));
+        }
+
+        [Test]
+        public void TestExecutionGeneratesNuspecFileForAssemblySemanticVersion()
+        {
+            // setup
+            task.ProjectDir += "Semantic";
+
+            // execute
+            bool result = task.Execute();
+
+            // assert
+            Assert.IsTrue(result);
+            Assert.IsTrue(fileTestHelper.FileExists(task.NuspecFile));
+        }
+
+        [Test]
+        public void TestExecutionGeneratesNuspecFileForAssemblySemanticVersionWithoutConfiguation()
+        {
+            // setup
+            task.ProjectDir += "Semantic";
+            task.Configuration = null;
 
             // execute
             bool result = task.Execute();
@@ -151,10 +194,40 @@ namespace OpenLib.BuildTasks.Tests
         }
 
         [Test]
+        public void TestExecutionGeneratesNuspecFileForTSqlWithoutConfiguration()
+        {
+            // setup
+            task.Language = codeInfoUtils.GetCodeLanguage(CodeLanguage.TSql);
+            task.Configuration = null;
+
+            // execute
+            bool result = task.Execute();
+
+            // assert
+            Assert.IsTrue(result);
+            Assert.IsTrue(fileTestHelper.FileExists(task.NuspecFile));
+        }
+
+        [Test]
         public void TestExecutionGeneratesNuspecFileForEtl()
         {
             // setup
             task.Language = codeInfoUtils.GetCodeLanguage(CodeLanguage.Etl);
+
+            // execute
+            bool result = task.Execute();
+
+            // assert
+            Assert.IsTrue(result);
+            Assert.IsTrue(fileTestHelper.FileExists(task.NuspecFile));
+        }
+
+        [Test]
+        public void TestExecutionGeneratesNuspecFileForEtlWithoutConfiguration()
+        {
+            // setup
+            task.Language = codeInfoUtils.GetCodeLanguage(CodeLanguage.Etl);
+            task.Configuration = null;
 
             // execute
             bool result = task.Execute();
