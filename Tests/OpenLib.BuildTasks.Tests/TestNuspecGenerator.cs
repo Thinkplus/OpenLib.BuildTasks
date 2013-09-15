@@ -238,6 +238,35 @@ namespace OpenLib.BuildTasks.Tests
         }
 
         [Test]
+        public void TestExecutionGeneratesNuspecFileForCobol()
+        {
+            // setup
+            task.Language = codeInfoUtils.GetCodeLanguage(CodeLanguage.Cobol);
+
+            // execute
+            bool result = task.Execute();
+
+            // assert
+            Assert.IsTrue(result);
+            Assert.IsTrue(fileTestHelper.FileExists(task.NuspecFile));
+        }
+
+        [Test]
+        public void TestExecutionGeneratesNuspecFileForCobolWithoutConfiguration()
+        {
+            // setup
+            task.Language = codeInfoUtils.GetCodeLanguage(CodeLanguage.Cobol);
+            task.Configuration = null;
+
+            // execute
+            bool result = task.Execute();
+
+            // assert
+            Assert.IsTrue(result);
+            Assert.IsTrue(fileTestHelper.FileExists(task.NuspecFile));
+        }
+
+        [Test]
         public void TestExecutionGeneratesNuspecFileWithDefaultFiles()
         {
             // setup

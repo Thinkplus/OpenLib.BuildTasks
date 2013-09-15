@@ -206,6 +206,19 @@ namespace OpenLib.BuildTasks
                     }
                     break;
 
+                case CodeLanguage.Cobol:
+                    {
+                        CobolInfo cobolInfo = new CobolInfo { ProjectDir = this.ProjectDir };
+
+                        cobolInfo.Execute();
+
+                        attributes.Add("Id", this.GetId(cobolInfo.Title));
+                        attributes.Add("Description", cobolInfo.Description);
+                        attributes.Add("Authors", cobolInfo.Company);
+                        attributes.Add("Version", cobolInfo.Version);
+                    }
+                    break;
+
                 default:
                     {
                         Assembly assembly = Assembly.LoadFrom(this.OutputPath);
