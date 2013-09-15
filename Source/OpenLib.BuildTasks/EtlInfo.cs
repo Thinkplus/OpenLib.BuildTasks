@@ -17,7 +17,7 @@ namespace OpenLib.BuildTasks
         /// <summary>
         /// Defines the path to the ETL information file.
         /// </summary>
-        private const string EtlInfoFile = "EtlInfo.etl";
+        public const string EtlInfoFile = "EtlInfo.etl";
 
         /// <summary>
         /// Defines a dictionary of attributes to read from the ETL

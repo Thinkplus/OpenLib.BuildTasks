@@ -56,6 +56,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Tasks\CobolInfo\Version.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Tasks\CobolInfo\SemanticVersion.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Tasks\DbInfo\SemanticVersion.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -74,6 +80,7 @@
     <Content Include="Tasks\NuspecGenerator\Semantic\Properties\AssemblyInfo.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Compile Include="TestCobolInfo.cs" />
     <Compile Include="TestDbInfo.cs" />
     <Compile Include="TestEtlInfo.cs" />
     <Compile Include="TestNuspecGenerator.cs" />

@@ -17,7 +17,7 @@ namespace OpenLib.BuildTasks
         /// <summary>
         /// Defines the path to the database information file.
         /// </summary>
-        private const string DbInfoFile = @"Properties\DbInfo.db";
+        public const string DbInfoFile = @"Properties\DbInfo.db";
 
         /// <summary>
         /// Defines a dictionary of attributes to read from the database

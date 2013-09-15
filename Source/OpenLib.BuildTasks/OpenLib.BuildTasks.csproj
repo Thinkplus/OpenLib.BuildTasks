@@ -58,6 +58,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CobolInfo.cs" />
+    <Compile Include="AbstractInfo.cs" />
     <Compile Include="DbInfo.cs" />
     <Compile Include="EtlInfo.cs" />
     <Compile Include="NuspecGenerator.cs" />
