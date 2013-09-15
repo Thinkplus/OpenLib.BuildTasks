@@ -77,6 +77,12 @@
     <Content Include="Tasks\NuspecGenerator\Properties\AssemblyInfo.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Tasks\Versioning\Cobol\SemanticVersion.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Tasks\Versioning\Cobol\Version.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="Tasks\NuspecGenerator\Properties\AssemblyInfo.cob">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

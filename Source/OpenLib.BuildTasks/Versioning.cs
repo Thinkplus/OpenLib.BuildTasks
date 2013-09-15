@@ -32,18 +32,34 @@ namespace OpenLib.BuildTasks
             "DbVersion",
             "DbInformationalVersion",
             "EtlVersion",
-            "EtlInformationalVersion"
+            "EtlInformationalVersion",
+            "CA-ASSEMBLYVERSION",
+            "CA-ASSEMBLYFILEVERSION",
+            "CA-ASSEMBLYINFORMATIONALVERSION"
         };
 
         /// <summary>
         /// Defines a list of values that not should be contained on a line.
         /// </summary>
-        private readonly List<string> LineNotContains = new List<string>() { "//", "'" };
+        private readonly List<string> LineNotContains = new List<string>()
+        {
+            "//",
+            "'",
+            "CLASS-ID",
+            "CA-GUID",
+            "CLASS CLASS-ASSEMBLYVERSION AS",
+            "CLASS CLASS-ASSEMBLYFILEVERSION AS",
+            "CLASS CLASS-ASSEMBLYINFORMATIONALVERSION AS"
+        };
 
         /// <summary>
         /// Defines a list of values that should have versions to exclude.
         /// </summary>
-        private readonly List<string> VersionsToExclude = new List<string>() { "AssemblyFileVersion" };
+        private readonly List<string> VersionsToExclude = new List<string>()
+        {
+            "AssemblyFileVersion",
+            "CA-ASSEMBLYFILEVERSION"
+        };
 
         /// <summary>
         /// Defines a list of values that indicate semantic versioning.
@@ -52,7 +68,8 @@ namespace OpenLib.BuildTasks
         {
             "AssemblyInformationalVersion",
             "DbInformationalVersion",
-            "EtlInformationalVersion"
+            "EtlInformationalVersion",
+            "CA-ASSEMBLYINFORMATIONALVERSION"
         };
 
         /// <summary>
@@ -173,7 +190,6 @@ namespace OpenLib.BuildTasks
             if (this.ProjectDir != null && this.Language != null)
             {
                 this.CodeLang = this.CodeInfoUtils.GetCodeLanguage(this.Language);
-
                 this.SetPaths();
 
                 Console.WriteLine("Attempting to version '{0}'", this.OutputFilePath);
@@ -242,19 +258,25 @@ namespace OpenLib.BuildTasks
                                 {
                                     string data = reader.ReadLine();
 
-                                    if (!data.ContainedIn(LineNotContains) && data.ContainedIn(LineContains))
+                                    if (!data.ContainedIn(LineNotContains) &&
+                                        data.ContainedIn(LineContains))
                                     {
                                         this.SetVersionType(data);
 
+                                        int splitIndex;
+
+                                        data = this.FormatData(reader, data, out splitIndex);
                                         data = this.Format(data, versionPart);
 
                                         if (!data.ContainedIn(VersionsToExclude))
                                         {
                                             this.Version = this.GetVersion(data);
                                         }
-                                    }
 
-                                    fileBuilder.AppendLine(data);
+                                        data = this.UnFormatData(fileBuilder, data, splitIndex);
+                                    }
+                                    else
+                                        fileBuilder.AppendLine(data);
                                 }
 
                                 this.SetNextVersions();
@@ -271,6 +293,56 @@ namespace OpenLib.BuildTasks
             }
 
             return contents;
+        }
+
+        /// <summary>
+        /// Formats the specified data and sets the split index, as necessary.
+        /// </summary>
+        /// <param name="reader">A reference to the <see cref="StreamReader" /> used to read the information file.</param>
+        /// <param name="data">Data containing the information.</param>
+        /// <param name="splitIndex">The split index for the data as an output parameter.</param>
+        /// <returns>The formatted data.</returns>
+        private string FormatData(StreamReader reader, string data, out int splitIndex)
+        {
+            splitIndex = -1;
+            string formattedData = data;
+
+            if (this.CodeLang.Equals(CodeLanguage.Cobol))
+            {
+                splitIndex = formattedData.Length - 1;
+                formattedData += reader.ReadLine();
+            }
+
+            return formattedData;
+        }
+        
+        /// <summary>
+        /// Unformats the specified data using the split index, as necessary.
+        /// </summary>
+        /// <param name="fileBuilder">A reference to the <see cref="StringBuilder" /> used to write the data to the information file.</param>
+        /// <param name="data">Data containing the information.</param>
+        /// <param name="splitIndex">The split index for the data.</param>
+        /// <returns>The unformatted data.</returns>
+        private string UnFormatData(StringBuilder fileBuilder, string data, int splitIndex)
+        {
+            string unFormattedData = data;
+
+            if (splitIndex > -1)
+            {
+                if (this.CodeLang.Equals(CodeLanguage.Cobol))
+                {
+                    int index = splitIndex + 1;
+                    string line1 = unFormattedData.Substring(0, index);
+                    string line2 = unFormattedData.Substring(index, unFormattedData.Length - index);
+
+                    fileBuilder.AppendLine(line1);
+                    fileBuilder.AppendLine(line2);
+                }
+            }
+            else
+                fileBuilder.AppendLine(unFormattedData);
+
+            return unFormattedData;
         }
 
         /// <summary>
@@ -449,7 +521,7 @@ namespace OpenLib.BuildTasks
 
             string[] versionParts = version.Split('.');
 
-            if (versionParts.Length == 3)
+            if (versionParts != null && versionParts.Length == 3)
             {
                 versionParts[1] = (versionParts[1].ToInt32Current() + 1).ToString();
                 versionParts[2] = "0";

@@ -88,6 +88,21 @@ namespace OpenLib.BuildTasks.Tests
         }
 
         [Test]
+        public void TestExecutionSetsVersionInfoPathForCobol()
+        {
+            // setup
+            string expected = codeInfoUtils.GetCodeVersionFile(CodeLanguage.Cobol);
+
+            task.Language = codeInfoUtils.GetCodeLanguage(CodeLanguage.Cobol);
+
+            // execute
+            task.Execute();
+
+            // assert
+            Assert.AreEqual(expected, task.VersionInfoPath);
+        }
+
+        [Test]
         public void TestExecutionDoesNotApplyVersionWhenProjectDirectoryIsNull()
         {
             // setup
@@ -295,6 +310,21 @@ namespace OpenLib.BuildTasks.Tests
         }
 
         [Test]
+        public void TestExecutionAppliesVersionForCobolVersion()
+        {
+            // setup
+            task.Language = codeInfoUtils.GetCodeLanguage(CodeLanguage.Cobol);
+            task.VersionInfoPath = this.Get(CodeLanguage.Cobol, "Version.txt");
+
+            // execute
+            bool result = task.Execute();
+
+            // assert
+            Assert.IsTrue(result);
+            Assert.AreEqual("1.0.0.0", task.Version);
+        }
+
+        [Test]
         public void TestExecutionDeterminesVersionIsSemanticForAssembly()
         {
             // setup
@@ -476,6 +506,21 @@ namespace OpenLib.BuildTasks.Tests
             // setup
             task.Language = codeInfoUtils.GetCodeLanguage(CodeLanguage.Etl);
             task.VersionInfoPath = this.Get(CodeLanguage.Etl, "SemanticVersion.txt");
+
+            // execute
+            bool result = task.Execute();
+
+            // assert
+            Assert.IsTrue(result);
+            Assert.IsTrue(task.Version.Contains("1.0.0-d"));
+        }
+
+        [Test]
+        public void TestExecutionAppliesVersionForCobolVersionForSemanticVersion()
+        {
+            // setup
+            task.Language = codeInfoUtils.GetCodeLanguage(CodeLanguage.Cobol);
+            task.VersionInfoPath = this.Get(CodeLanguage.Cobol, "SemanticVersion.txt");
 
             // execute
             bool result = task.Execute();
