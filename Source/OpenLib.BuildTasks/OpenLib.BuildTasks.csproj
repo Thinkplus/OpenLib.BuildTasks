@@ -45,8 +45,9 @@
     <Reference Include="OpenLib.Extensions">
       <HintPath>..\..\packages\OpenLib.Extensions.1.2.1\lib\net45\OpenLib.Extensions.dll</HintPath>
     </Reference>
-    <Reference Include="OpenLib.Utils">
-      <HintPath>..\..\packages\OpenLib.Utils.1.2.0\lib\net45\OpenLib.Utils.dll</HintPath>
+    <Reference Include="OpenLib.Utils, Version=1.3.1.0, Culture=neutral, PublicKeyToken=486274d8afc02d26, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\OpenLib.Utils.1.3.1\lib\net45\OpenLib.Utils.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

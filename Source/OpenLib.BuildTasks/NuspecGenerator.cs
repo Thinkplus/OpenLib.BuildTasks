@@ -19,7 +19,7 @@ namespace OpenLib.BuildTasks
         /// <summary>
         /// Defines the extension of the Nuspec file.
         /// </summary>
-        private const string Extension = "nuspec";
+        public const string Extension = "nuspec";
 
         /// <summary>
         /// Defines a list of default files to include in the Nuspec file.
@@ -301,8 +301,9 @@ namespace OpenLib.BuildTasks
         /// <param name="nuspec">The Nuspec document in which to add files to.</param>
         /// <remarks>
         /// If the OverrideDefaultFiles property is set to false, the default
-        /// list of files will be added. If the CustomFiles property is set,
-        /// the custom files specified will be added in their place.
+        /// list of files will be added, otherwise, they will not be added. If
+        /// the CustomFiles property is set, the custom files specified will be
+        /// added as well.
         /// </remarks>
         private void AddFiles(XDocument nuspec)
         {

@@ -19,7 +19,7 @@ namespace OpenLib.BuildTasks
         /// <summary>
         /// Defines the semantic versioning indicator.
         /// </summary>
-        private const string SemanticVersioningIndicator = "-d";
+        public const string SemanticVersioningIndicator = "-d";
 
         /// <summary>
         /// Defines a list of values that should be contained on a line.
@@ -224,13 +224,15 @@ namespace OpenLib.BuildTasks
         /// <returns>The updated contents of the version info file.</returns>
         private string Apply(string path, string versionPart)
         {
+            string contents = null;
+
             if (!string.IsNullOrWhiteSpace(path) && this.IoUtils.FileExists(path))
             {
                 using (FileStream stream = this.IoUtils.ReadFileAsStream(path))
                 {
                     if (stream != null)
                     {
-                        StringBuilder contents = new StringBuilder();
+                        StringBuilder fileBuilder = new StringBuilder();
 
                         using (StreamReader reader = new StreamReader(stream))
                         {
@@ -252,7 +254,7 @@ namespace OpenLib.BuildTasks
                                         }
                                     }
 
-                                    contents.AppendLine(data);
+                                    fileBuilder.AppendLine(data);
                                 }
 
                                 this.SetNextVersions();
@@ -263,12 +265,12 @@ namespace OpenLib.BuildTasks
 
                         stream.Close();
 
-                        return contents.ToString();
+                        contents = fileBuilder.ToString();
                     }
                 }
             }
 
-            return null;
+            return contents;
         }
 
         /// <summary>

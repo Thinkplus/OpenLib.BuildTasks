@@ -18,7 +18,7 @@ namespace OpenLib.BuildTasks
         /// <summary>
         /// Defines the name of the Sonar project configuration file.
         /// </summary>
-        private const string SonarProjectConfig = "sonar-project.properties";
+        public const string SonarProjectConfig = "sonar-project.properties";
 
         /// <summary>
         /// Defines a list of values that should be contained on a line.
@@ -73,22 +73,27 @@ namespace OpenLib.BuildTasks
         {
             Console.WriteLine("Executing SonarVersioning MSBuild task...");
 
-            if (this.SolutionDir != null && this.ProjectDir != null && this.Version != null)
+            if ((!string.IsNullOrWhiteSpace(this.SolutionDir) ||
+                !string.IsNullOrWhiteSpace(this.ProjectDir)) &&
+                !string.IsNullOrWhiteSpace(this.Version))
             {
-                this.SetPaths();
+                bool isSet = this.SetPaths();
 
-                Console.WriteLine("Attempting to apply version '{0}' to Sonar project configuration file", this.OutputFilePath);
-
-                string contents = this.Apply(this.OutputFilePath);
-
-                if (!string.IsNullOrWhiteSpace(contents))
+                if (isSet)
                 {
-                    bool applied = this.IoUtils.WriteFile(this.OutputFilePath, contents);
+                    Console.WriteLine("Attempting to apply version '{0}' to Sonar project configuration file", this.OutputFilePath);
 
-                    if (applied)
+                    string contents = this.Apply(this.OutputFilePath);
+
+                    if (!string.IsNullOrWhiteSpace(contents))
                     {
-                        Console.WriteLine("SUCCESSFULLY applied version {0} to Sonar project configuration file!", this.Version);
-                        return true;
+                        bool applied = this.IoUtils.WriteFile(this.OutputFilePath, contents);
+
+                        if (applied)
+                        {
+                            Console.WriteLine("SUCCESSFULLY applied version {0} to Sonar project configuration file!", this.Version);
+                            return true;
+                        }
                     }
                 }
                 else
@@ -105,14 +110,29 @@ namespace OpenLib.BuildTasks
         /// output file path is not found, it is then set using the project
         /// directory.
         /// </summary>
-        private void SetPaths()
+        /// <returns>A value indicating if the output file path was set.</returns>
+        private bool SetPaths()
         {
-            this.OutputFilePath = Path.Combine(this.SolutionDir, SonarProjectConfig);
+            bool isSolutionDirSet = !string.IsNullOrWhiteSpace(this.SolutionDir);
+            bool isProjectDirSet = !string.IsNullOrWhiteSpace(this.ProjectDir);
 
-            if (!this.IoUtils.FileExists(this.OutputFilePath))
+            if (isSolutionDirSet)
+            {
+                this.OutputFilePath = Path.Combine(this.SolutionDir, SonarProjectConfig);
+
+                if (this.IoUtils.FileExists(this.OutputFilePath))
+                    return true;
+            }
+
+            if (!isSolutionDirSet && isProjectDirSet)
             {
                 this.OutputFilePath = Path.Combine(this.ProjectDir, SonarProjectConfig);
+
+                if (this.IoUtils.FileExists(this.OutputFilePath))
+                    return true;
             }
+
+            return false;
         }
 
         /// <summary>
@@ -124,13 +144,15 @@ namespace OpenLib.BuildTasks
         /// <returns>The updated contents of the Sonar project configuration file.</returns>
         private string Apply(string path)
         {
+            string contents = null;
+
             if (!string.IsNullOrWhiteSpace(path) && this.IoUtils.FileExists(path))
             {
                 using (FileStream stream = this.IoUtils.ReadFileAsStream(path))
                 {
                     if (stream != null)
                     {
-                        StringBuilder contents = new StringBuilder();
+                        StringBuilder fileBuilder = new StringBuilder();
 
                         using (StreamReader reader = new StreamReader(stream))
                         {
@@ -143,7 +165,7 @@ namespace OpenLib.BuildTasks
                                     if (data.ContainedIn(LineContains))
                                         data = this.Format(data);
 
-                                    contents.AppendLine(data);
+                                    fileBuilder.AppendLine(data);
                                 }
 
                                 reader.Close();
@@ -152,12 +174,12 @@ namespace OpenLib.BuildTasks
 
                         stream.Close();
 
-                        return contents.ToString();
+                        contents = fileBuilder.ToString();
                     }
                 }
             }
 
-            return null;
+            return contents;
         }
 
         /// <summary>
