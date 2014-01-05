@@ -527,7 +527,7 @@ namespace OpenLib.BuildTasks
                 versionParts[2] = "0";
             }
 
-            this.NextReleaseVersion = version;
+            this.NextReleaseVersion = this.IsRelease ? versionParts.Join(".") : version;
             this.NextNewDevelopmentVersion = string.Concat(versionParts.Join("."), SemanticVersioningIndicator);
         }
     }
