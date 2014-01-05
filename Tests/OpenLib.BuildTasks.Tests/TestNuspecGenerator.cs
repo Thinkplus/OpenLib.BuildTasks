@@ -14,15 +14,15 @@ namespace OpenLib.BuildTasks.Tests
         private const string Assembly = "OpenLib.BuildTasks.dll";
         private const string Configuration = "Debug";
 
+        private FileTestHelper fileTestHelper;
         private CodeInfoUtils codeInfoUtils;
         private NuspecGenerator task;
-        private FileTestHelper fileTestHelper;
 
         [SetUp]
         public void SetUp()
         {
+            fileTestHelper = new FileTestHelper();
             codeInfoUtils = new CodeInfoUtils();
-
             task = new NuspecGenerator
             {
                 PackageDir = string.Empty,
@@ -31,8 +31,6 @@ namespace OpenLib.BuildTasks.Tests
                 Language = codeInfoUtils.GetCodeLanguage(CodeLanguage.CSharp),
                 Configuration = Configuration
             };
-
-            fileTestHelper = new FileTestHelper();
         }
 
         [TearDown]
@@ -267,6 +265,37 @@ namespace OpenLib.BuildTasks.Tests
         }
 
         [Test]
+        public void TestExecutionGeneratesNuspecFileWithDependencies()
+        {
+            // setup
+            ITaskItem dependency1 = new TaskItem { ItemSpec = @"Dependency1" };
+            dependency1.SetMetadata("Version", "1.0.0");
+            dependency1.SetMetadata("TargetFramework", "net451");
+
+            ITaskItem dependency2 = new TaskItem { ItemSpec = @"Dependency2" };
+            dependency2.SetMetadata("Version", "1.0.0");
+            dependency2.SetMetadata("TargetFramework", "net451");
+
+            ITaskItem dependency3 = new TaskItem { ItemSpec = @"Dependency3" };
+            dependency3.SetMetadata("Version", "1.0.0");
+
+            ITaskItem[] dependencies = { dependency1, dependency2, dependency3 };
+
+            task.Dependencies = dependencies;
+
+            // execute
+            bool result = task.Execute();
+
+            string contents = fileTestHelper.ReadFile(task.NuspecFile);
+
+            // assert
+            Assert.IsTrue(result);
+            Assert.IsTrue(contents.Contains(dependency1.ItemSpec));
+            Assert.IsTrue(contents.Contains(dependency2.ItemSpec));
+            Assert.IsTrue(contents.Contains(dependency3.ItemSpec));
+        }
+
+        [Test]
         public void TestExecutionGeneratesNuspecFileWithDefaultFiles()
         {
             // setup
@@ -289,10 +318,10 @@ namespace OpenLib.BuildTasks.Tests
             ITaskItem libFile = new TaskItem { ItemSpec = @"*\*.dll" };
 
             ITaskItem jsFile = new TaskItem { ItemSpec = @"*\*.js" };
-            jsFile.SetMetadata("FileType", "content");
+            jsFile.SetMetadata("Target", "content");
 
             ITaskItem cssFile = new TaskItem { ItemSpec = @"*\*.css" };
-            cssFile.SetMetadata("FileType", "content");
+            cssFile.SetMetadata("Target", "content");
 
             ITaskItem[] files = { jsFile, cssFile };
 
@@ -317,14 +346,14 @@ namespace OpenLib.BuildTasks.Tests
             ITaskItem libFile = new TaskItem { ItemSpec = @"*\*.dll" };
 
             ITaskItem jsFile = new TaskItem { ItemSpec = @"*\*.js" };
-            jsFile.SetMetadata("FileType", "content");
+            jsFile.SetMetadata("Target", "content");
 
             ITaskItem cssFile = new TaskItem { ItemSpec = @"*\*.css" };
-            cssFile.SetMetadata("FileType", "content");
+            cssFile.SetMetadata("Target", "content");
 
             ITaskItem[] files = { jsFile, cssFile };
 
-            task.OverrideDefaultFiles = true;
+            task.ExcludeDefaultFiles = true;
             task.CustomFiles = files;
 
             // execute
@@ -344,13 +373,13 @@ namespace OpenLib.BuildTasks.Tests
         {
             // setup
             ITaskItem dirFile = new TaskItem { ItemSpec = @"Test\" };
-            dirFile.SetMetadata("FileType", "content");
+            dirFile.SetMetadata("Target", "content");
 
             ITaskItem jsFile = new TaskItem { ItemSpec = @"*\*.js" };
-            jsFile.SetMetadata("FileType", "content");
+            jsFile.SetMetadata("Target", "content");
 
             ITaskItem cssFile = new TaskItem { ItemSpec = @"*\*.css" };
-            cssFile.SetMetadata("FileType", "content");
+            cssFile.SetMetadata("Target", "content");
 
             ITaskItem[] files = { dirFile, jsFile, cssFile };
 

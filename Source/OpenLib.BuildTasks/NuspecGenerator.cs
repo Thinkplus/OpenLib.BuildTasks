@@ -12,7 +12,7 @@ namespace OpenLib.BuildTasks
 {
     /// <summary>
     /// The <c>NuspecGenerator</c> type provides a custom MSBuild task for
-    /// generating a Nuspec file based on an assembly and package directory.
+    /// generating a Nuspec file.
     /// </summary>
     public class NuspecGenerator : Task
     {
@@ -61,7 +61,7 @@ namespace OpenLib.BuildTasks
         public string PackageDir { get; set; }
 
         /// <summary>
-        /// Gets or sets the project location of the project as a required
+        /// Gets or sets the directory location of the project as a required
         /// task property.
         /// </summary>
         [Required]
@@ -87,17 +87,20 @@ namespace OpenLib.BuildTasks
 
         /// <summary>
         /// Gets or sets a value indicating if the default set of files should
-        /// be overriden using the array of custom file task items.
+        /// be excluded using an array of custom file task items.
         /// </summary>
-        public bool OverrideDefaultFiles { get; set; }
+        public bool ExcludeDefaultFiles { get; set; }
+
+        /// <summary>
+        /// Gets or sets an array of dependency task items from an item
+        /// group as an optional task property.
+        /// </summary>
+        public ITaskItem[] Dependencies { get; set; }
 
         /// <summary>
         /// Gets or sets an array of custom file task items from an item
         /// group as an optional task property.
         /// </summary>
-        /// <remarks>
-        /// This is only used if OverrideDefaultFiles is set to true.
-        /// </remarks>
         public ITaskItem[] CustomFiles { get; set; }
 
         /// <summary>
@@ -148,11 +151,13 @@ namespace OpenLib.BuildTasks
                             new XElement("authors", attributes["Authors"]),
                             new XElement("version", attributes["Version"])
                         ),
+                        new XElement("dependencies"),
                         new XElement("files")
                     )
                 );
 
-                this.AddFiles(nuspec);
+                this.AddDependencies(nuspec);
+                this.AddCustomFiles(nuspec);
 
                 this.NuspecFile = Path.Combine(this.PackageDir, string.Concat(attributes["Id"], ".", Extension));
 
@@ -309,25 +314,88 @@ namespace OpenLib.BuildTasks
         }
 
         /// <summary>
-        /// Adds files to the specified Nuspec document.
+        /// Adds dependencies to the specified Nuspec document.
         /// </summary>
-        /// <param name="nuspec">The Nuspec document in which to add files to.</param>
+        /// <param name="nuspec">The Nuspec document in which to add dependencies to.</param>
+        private void AddDependencies(XDocument nuspec)
+        {
+            List<Tuple<string, string, string>> items = new List<Tuple<string, string, string>>();
+
+            if (this.Dependencies != null && this.Dependencies.Length > 0)
+            {
+                items.AddRange(this.Dependencies.Select(i =>
+                    new Tuple<string, string, string>(
+                        i.ItemSpec,
+                        i.GetMetadata("Version"),
+                        i.GetMetadata("TargetFramework"))
+                    ));
+            }
+
+            XElement e = nuspec.Element("package").Element("dependencies");
+
+            if (e != null)
+            {
+                e.Add(new XElement("group"));
+                XElement eDefaultGroup = (XElement)e.LastNode;
+
+                items.ForEach(i =>
+                {
+                    if (!string.IsNullOrWhiteSpace(i.Item3))
+                    {
+                        XElement eGroup = (from g in e.Descendants("group")
+                                           where g != null &&
+                                                g.Attribute("targetFramework") != null &&
+                                                g.Attribute("targetFramework").Value.Equals(i.Item3)
+                                           select g
+                                          ).SingleOrDefault();
+
+                        if (eGroup == null)
+                        {
+                            e.Add(new XElement("group", new XAttribute("targetFramework", i.Item3)));
+                            eGroup = (XElement)e.LastNode;
+                        }
+
+                        eGroup.Add(new XElement("dependency",
+                            new XAttribute("id", i.Item1),
+                            new XAttribute("version", i.Item2)
+                        ));
+                    }
+                    else
+                    {
+                        eDefaultGroup.Add(new XElement("dependency",
+                            new XAttribute("id", i.Item1),
+                            new XAttribute("version", i.Item2)
+                        ));
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// Adds custom files to the specified Nuspec document.
+        /// </summary>
+        /// <param name="nuspec">The Nuspec document in which to add custom files to.</param>
         /// <remarks>
-        /// If the OverrideDefaultFiles property is set to false, the default
+        /// If the ExcludeDefaultFiles property is set to false, the default
         /// list of files will be added, otherwise, they will not be added. If
         /// the CustomFiles property is set, the custom files specified will be
         /// added as well.
         /// </remarks>
-        private void AddFiles(XDocument nuspec)
+        private void AddCustomFiles(XDocument nuspec)
         {
             List<Tuple<string, string>> items = new List<Tuple<string, string>>();
 
-            if (!this.OverrideDefaultFiles)
+            if (!this.ExcludeDefaultFiles)
                 items.AddRange(DefaultFiles);
 
             if (this.CustomFiles != null && this.CustomFiles.Length > 0)
             {
-                items.AddRange(this.CustomFiles.Select(i => new Tuple<string, string>(i.ItemSpec, this.GetTarget(i.ItemSpec, i.GetMetadata("FileType")))));
+                items.AddRange(this.CustomFiles.Select(i =>
+                    new Tuple<string, string>
+                        (i.ItemSpec, this.GetTarget(
+                            i.ItemSpec,
+                            i.GetMetadata("Target")))
+                        ));
             }
 
             XElement e = nuspec.Element("package").Element("files");
@@ -346,14 +414,14 @@ namespace OpenLib.BuildTasks
         /// Gets the target directory or file based on the source.
         /// </summary>
         /// <param name="source">The source directory or file.</param>
-        /// <param name="fileType">The type of the file.</param>
+        /// <param name="target">The target directory or file.</param>
         /// <returns>The target directory or file based on the source.</returns>
-        private string GetTarget(string source, string fileType)
+        private string GetTarget(string source, string target)
         {
             if (this.IoUtils.IsDirectory(source))
-                return Path.Combine(fileType, source);
+                return Path.Combine(target, source);
 
-            return fileType;
+            return target;
         }
     }
 }
