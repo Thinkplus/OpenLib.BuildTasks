@@ -318,10 +318,10 @@ namespace OpenLib.BuildTasks.Tests
             ITaskItem libFile = new TaskItem { ItemSpec = @"*\*.dll" };
 
             ITaskItem jsFile = new TaskItem { ItemSpec = @"*\*.js" };
-            jsFile.SetMetadata("Target", "content");
+            jsFile.SetMetadata("FileType", "content");
 
             ITaskItem cssFile = new TaskItem { ItemSpec = @"*\*.css" };
-            cssFile.SetMetadata("Target", "content");
+            cssFile.SetMetadata("FileType", "content");
 
             ITaskItem[] files = { jsFile, cssFile };
 
@@ -346,10 +346,10 @@ namespace OpenLib.BuildTasks.Tests
             ITaskItem libFile = new TaskItem { ItemSpec = @"*\*.dll" };
 
             ITaskItem jsFile = new TaskItem { ItemSpec = @"*\*.js" };
-            jsFile.SetMetadata("Target", "content");
+            jsFile.SetMetadata("FileType", "content");
 
             ITaskItem cssFile = new TaskItem { ItemSpec = @"*\*.css" };
-            cssFile.SetMetadata("Target", "content");
+            cssFile.SetMetadata("FileType", "content");
 
             ITaskItem[] files = { jsFile, cssFile };
 
@@ -373,13 +373,13 @@ namespace OpenLib.BuildTasks.Tests
         {
             // setup
             ITaskItem dirFile = new TaskItem { ItemSpec = @"Test\" };
-            dirFile.SetMetadata("Target", "content");
+            dirFile.SetMetadata("FileType", "content");
 
             ITaskItem jsFile = new TaskItem { ItemSpec = @"*\*.js" };
-            jsFile.SetMetadata("Target", "content");
+            jsFile.SetMetadata("FileType", "content");
 
             ITaskItem cssFile = new TaskItem { ItemSpec = @"*\*.css" };
-            cssFile.SetMetadata("Target", "content");
+            cssFile.SetMetadata("FileType", "content");
 
             ITaskItem[] files = { dirFile, jsFile, cssFile };
 

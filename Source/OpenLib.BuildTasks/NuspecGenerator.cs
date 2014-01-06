@@ -394,7 +394,7 @@ namespace OpenLib.BuildTasks
                     new Tuple<string, string>
                         (i.ItemSpec, this.GetTarget(
                             i.ItemSpec,
-                            i.GetMetadata("Target")))
+                            i.GetMetadata("FileType")))
                         ));
             }
 
