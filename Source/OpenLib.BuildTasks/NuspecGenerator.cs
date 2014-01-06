@@ -149,9 +149,9 @@ namespace OpenLib.BuildTasks
                             new XElement("id", attributes["Id"]),
                             new XElement("description", attributes["Description"]),
                             new XElement("authors", attributes["Authors"]),
-                            new XElement("version", attributes["Version"])
+                            new XElement("version", attributes["Version"]),
+                            new XElement("dependencies")
                         ),
-                        new XElement("dependencies"),
                         new XElement("files")
                     )
                 );
@@ -331,7 +331,7 @@ namespace OpenLib.BuildTasks
                     ));
             }
 
-            XElement e = nuspec.Element("package").Element("dependencies");
+            XElement e = nuspec.Element("package").Element("metadata").Element("dependencies");
 
             if (e != null)
             {
