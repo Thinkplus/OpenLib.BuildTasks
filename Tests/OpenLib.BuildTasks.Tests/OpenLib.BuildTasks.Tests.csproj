@@ -52,9 +52,9 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="TestUtilities, Version=1.4.1.0, Culture=neutral, PublicKeyToken=c8e6f8f6b3b89476, processorArchitecture=MSIL">
+    <Reference Include="TestUtilities, Version=1.4.2.0, Culture=neutral, PublicKeyToken=c8e6f8f6b3b89476, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\TestUtilities.1.4.1\lib\net45\TestUtilities.dll</HintPath>
+      <HintPath>..\..\packages\TestUtilities.1.4.2\lib\net45\TestUtilities.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -91,6 +91,7 @@
     <Content Include="Tasks\NuspecGenerator\Semantic\Properties\AssemblyInfo.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Compile Include="TestAssemblyInfo.cs" />
     <Compile Include="TestCobolInfo.cs" />
     <Compile Include="TestDbInfo.cs" />
     <Compile Include="TestEtlInfo.cs" />

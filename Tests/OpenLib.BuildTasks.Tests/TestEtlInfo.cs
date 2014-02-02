@@ -21,7 +21,7 @@ namespace OpenLib.BuildTasks.Tests
         }
 
         [Test]
-        public void TestExcecutionDoesNotObtainVersionWhenProjectDirIsNull()
+        public void TestExcecutionDoesNotObtainEtlInfoWhenProjectDirIsNull()
         {
             // setup
             // see SetUp

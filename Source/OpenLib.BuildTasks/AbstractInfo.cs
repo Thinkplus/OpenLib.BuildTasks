@@ -12,7 +12,7 @@ namespace OpenLib.BuildTasks
     /// reusable methods for creating custom MSBuild tasks that read project
     /// information attributes.
     /// </summary>
-    public abstract class AbstractInfo : Task
+    public abstract class AbstractInfo : Task, IProjectInfo
     {
         /// <summary>
         /// Defines the abstract name of the MSBuild task.
@@ -76,25 +76,29 @@ namespace OpenLib.BuildTasks
         public string InfoPath { get; set; }
 
         /// <summary>
-        /// Gets or sets the title as a task output property.
+        /// Gets or sets the project information title as a task output
+        /// property.
         /// </summary>
         [Output]
         public string Title { get; set; }
 
         /// <summary>
-        /// Gets or sets the description as a task output property.
+        /// Gets or sets the project information description as a task output
+        /// property.
         /// </summary>
         [Output]
         public string Description { get; set; }
 
         /// <summary>
-        /// Gets or sets the company as a task output property.
+        /// Gets or sets the project information company as a task output
+        /// property.
         /// </summary>
         [Output]
         public string Company { get; set; }
 
         /// <summary>
-        /// Gets or sets the version as a task output property.
+        /// Gets or sets the project information version as a task output
+        /// property.
         /// </summary>
         [Output]
         public string Version { get; set; }

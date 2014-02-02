@@ -21,7 +21,7 @@ namespace OpenLib.BuildTasks.Tests
         }
 
         [Test]
-        public void TestExecutionDoesNotObtainVersionWhenProjectDirIsNull()
+        public void TestExecutionDoesNotObtainCobolInfoWhenProjectDirIsNull()
         {
             // setup
             // see SetUp

@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Xml.Linq;
 
 namespace OpenLib.BuildTasks
@@ -160,11 +159,9 @@ namespace OpenLib.BuildTasks
                 this.AddCustomFiles(nuspec);
 
                 this.NuspecFile = Path.Combine(this.PackageDir, string.Concat(attributes["Id"], ".", Extension));
-
                 Console.WriteLine("Nuspec file: {0}", this.NuspecFile);
 
                 nuspec.Save(this.NuspecFile);
-
                 Console.WriteLine("SUCCESSFULLY generated Nuspec file!");
 
                 return true;
@@ -182,62 +179,33 @@ namespace OpenLib.BuildTasks
         private Dictionary<string, string> GetAttributes()
         {
             Dictionary<string, string> attributes = new Dictionary<string, string>();
+            IProjectInfo projectInfo = null;
 
             switch (this.CodeLang)
             {
                 case CodeLanguage.TSql:
-                    {
-                        DbInfo dbInfo = new DbInfo { ProjectDir = this.ProjectDir };
-
-                        dbInfo.Execute();
-
-                        attributes.Add("Id", this.GetId(dbInfo.Title));
-                        attributes.Add("Description", dbInfo.Description);
-                        attributes.Add("Authors", dbInfo.Company);
-                        attributes.Add("Version", dbInfo.Version);
-                    }
+                    projectInfo = new DbInfo { ProjectDir = this.ProjectDir };
                     break;
 
                 case CodeLanguage.Etl:
-                    {
-                        EtlInfo etlInfo = new EtlInfo { ProjectDir = this.ProjectDir };
-
-                        etlInfo.Execute();
-
-                        attributes.Add("Id", this.GetId(etlInfo.Title));
-                        attributes.Add("Description", etlInfo.Description);
-                        attributes.Add("Authors", etlInfo.Company);
-                        attributes.Add("Version", etlInfo.Version);
-                    }
+                    projectInfo = new EtlInfo { ProjectDir = this.ProjectDir };
                     break;
 
                 case CodeLanguage.Cobol:
-                    {
-                        CobolInfo cobolInfo = new CobolInfo { ProjectDir = this.ProjectDir };
-
-                        cobolInfo.Execute();
-
-                        attributes.Add("Id", this.GetId(cobolInfo.Title));
-                        attributes.Add("Description", cobolInfo.Description);
-                        attributes.Add("Authors", cobolInfo.Company);
-                        attributes.Add("Version", cobolInfo.Version);
-                    }
+                    projectInfo = new CobolInfo { ProjectDir = this.ProjectDir };
                     break;
 
                 default:
-                    {
-                        Assembly assembly = Assembly.LoadFrom(this.OutputPath);
-
-                        attributes.Add("Id", this.GetId(assembly));
-                        attributes.Add("Description", this.GetDescription(assembly));
-                        attributes.Add("Authors", this.GetCompany(assembly));
-                        attributes.Add("Version", this.GetVersion(assembly));
-                    }
+                    projectInfo = new AssemblyInfo { AssemblyPath = this.OutputPath };
                     break;
             }
 
-            if (attributes.ContainsKey("Id"))
-                attributes["Id"] = CleanId(attributes["Id"]);
+            projectInfo.Execute();
+
+            attributes.Add("Id", CleanId(this.GetId(projectInfo.Title)));
+            attributes.Add("Description", projectInfo.Description);
+            attributes.Add("Authors", projectInfo.Company);
+            attributes.Add("Version", projectInfo.Version);
 
             return attributes;
         }
@@ -253,54 +221,6 @@ namespace OpenLib.BuildTasks
                 return string.Concat(title, ".", this.Configuration);
             else
                 return title;
-        }
-
-        /// <summary>
-        /// Gets the identifier for the specified assembly.
-        /// </summary>
-        /// <param name="assembly">A reference to the assembly.</param>
-        /// <returns>The identifier of the assembly.</returns>
-        private string GetId(Assembly assembly)
-        {
-            if (!string.IsNullOrWhiteSpace(this.Configuration))
-                return string.Concat(assembly.GetName().Name, ".", this.Configuration);
-            else
-                return assembly.GetName().Name;
-        }
-
-        /// <summary>
-        /// Gets the description for the specified assembly.
-        /// </summary>
-        /// <param name="assembly">A reference to the assembly.</param>
-        /// <returns>The description of the assembly.</returns>
-        private string GetDescription(Assembly assembly)
-        {
-            return ((AssemblyDescriptionAttribute) (Attribute.GetCustomAttribute(assembly, typeof(AssemblyDescriptionAttribute)))).Description;
-        }
-
-        /// <summary>
-        /// Gets the company for the specified assembly.
-        /// </summary>
-        /// <param name="assembly">A reference to the assembly.</param>
-        /// <returns>The company of the assembly.</returns>
-        private string GetCompany(Assembly assembly)
-        {
-            return ((AssemblyCompanyAttribute)(Attribute.GetCustomAttribute(assembly, typeof(AssemblyCompanyAttribute)))).Company;
-        }
-
-        /// <summary>
-        /// Gets the version for the specified assembly.
-        /// </summary>
-        /// <param name="assembly">A reference to the assembly.</param>
-        /// <returns>The version of the assembly.</returns>
-        private string GetVersion(Assembly assembly)
-        {
-            AssemblyInformationalVersionAttribute semanticVersion = Attribute.GetCustomAttribute(assembly, typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute;
-
-            if (semanticVersion != null)
-                return semanticVersion.InformationalVersion;
-            else
-                return assembly.GetName().Version.ToString();
         }
 
         /// <summary>
