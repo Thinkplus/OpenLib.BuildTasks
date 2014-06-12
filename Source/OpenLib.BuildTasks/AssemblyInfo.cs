@@ -12,6 +12,10 @@ namespace OpenLib.BuildTasks
     /// </summary>
     public class AssemblyInfo : Task, IProjectInfo
     {
+        //---------------------------------------------------------------------
+        // Properties
+        //---------------------------------------------------------------------
+
         /// <summary>
         /// Gets or sets a reference to the I/O utilities.
         /// </summary>
@@ -78,6 +82,10 @@ namespace OpenLib.BuildTasks
         [Output]
         public string Version { get; set; }
 
+        //---------------------------------------------------------------------
+        // Constructors
+        //---------------------------------------------------------------------
+
         /// <summary>
         /// Creates a new instance of the <c>AssemblyInfo</c> class.
         /// </summary>
@@ -85,6 +93,10 @@ namespace OpenLib.BuildTasks
         {
             this.IoUtils = new IoUtils();
         }
+
+        //---------------------------------------------------------------------
+        // Abstract Implementation Methods
+        //---------------------------------------------------------------------
 
         /// <summary>
         /// Executes the custom task when it is invoked in a MSBuild script.
@@ -123,11 +135,16 @@ namespace OpenLib.BuildTasks
             return false;
         }
 
+        //---------------------------------------------------------------------
+        // Other Methods
+        //---------------------------------------------------------------------
+
         /// <summary>
         /// Obtains the assembly information attributes from the specified
         /// assembly.
         /// </summary>
-        /// <returns>A value indicating if the assembly information attributes were obtained.</returns>
+        /// <returns>A value indicating if the assembly information attributes
+        /// were obtained.</returns>
         private bool Obtain()
         {
             if (this.IoUtils.FileExists(this.AssemblyPath))
@@ -158,7 +175,8 @@ namespace OpenLib.BuildTasks
         /// <typeparam name="T">The generic type of the assembly attribute.</typeparam>
         /// <param name="assembly">A reference to the assembly.</param>
         /// <param name="attributeName">The name of the assembly attribute.</param>
-        /// <param name="required">A value indicating if the assembly attribute is required.</param>
+        /// <param name="required">A value indicating if the assembly attribute
+        /// is required.</param>
         /// <returns>The attribute value of the assembly.</returns>
         /// <exception cref="ArgumentException">Occurs when an <see cref="ArgumentNullException" />
         /// or <see cref="InvalidCastException" /> is caught by this method for a

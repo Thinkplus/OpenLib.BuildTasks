@@ -14,6 +14,10 @@ namespace OpenLib.BuildTasks
     /// </summary>
     public abstract class AbstractInfo : Task, IProjectInfo
     {
+        //---------------------------------------------------------------------
+        // Abstract Properties
+        //---------------------------------------------------------------------
+
         /// <summary>
         /// Defines the abstract name of the MSBuild task.
         /// </summary>
@@ -50,6 +54,10 @@ namespace OpenLib.BuildTasks
         /// to read from the information file.
         /// </remarks>
         protected abstract Dictionary<string, string> Attributes { get; }
+
+        //---------------------------------------------------------------------
+        // Properties
+        //---------------------------------------------------------------------
 
         /// <summary>
         /// Defines the first version attribute found in the information file.
@@ -103,6 +111,10 @@ namespace OpenLib.BuildTasks
         [Output]
         public string Version { get; set; }
 
+        //---------------------------------------------------------------------
+        // Constructors
+        //---------------------------------------------------------------------
+
         /// <summary>
         /// Creates a new instance of the <c>AbstractInfo</c> class.
         /// </summary>
@@ -111,21 +123,31 @@ namespace OpenLib.BuildTasks
             this.IoUtils = new IoUtils();
         }
 
-        /// <summary>
-        /// Sets the path to the information file.
-        /// </summary>
-        private void SetPaths()
-        {
-            if (string.IsNullOrWhiteSpace(this.InfoPath))
-            {
-                this.InfoPath = Path.Combine(this.ProjectDir, InfoFile);
-            }
-        }
+        //---------------------------------------------------------------------
+        // Abstract Methods
+        //---------------------------------------------------------------------
 
         /// <summary>
-        /// Executes the custom task when it is invoked in a MSBuild script.
+        /// Gets a value indicating if the data contains the correct information
+        /// from the information file.
         /// </summary>
-        /// <returns>A value indicating if the task completely successfully.</returns>
+        /// <param name="reader">A reference to the <see cref="StreamReader" />
+        /// used to read the information file.</param>
+        /// <param name="data">Data containing the information.</param>
+        /// <remarks>
+        /// This must be overriden in derived classes to provide a value
+        /// indicating if the correct information is contained in the specified
+        /// data.
+        /// </remarks>
+        /// <returns>A value indicating if the correct information is contained
+        /// in the specified data.</returns>
+        protected abstract bool ContainsData(StreamReader reader, ref string data);
+
+        //---------------------------------------------------------------------
+        // IProjectInfo Implementation
+        //---------------------------------------------------------------------
+
+        /// <inheritdoc/>
         public override bool Execute()
         {
             Console.WriteLine("Executing {0} MSBuild task...", this.TaskName);
@@ -146,14 +168,27 @@ namespace OpenLib.BuildTasks
                 if (obtained)
                 {
                     Console.WriteLine("SUCCESSFULLY obtained {0} information!", this.TaskType);
-
                     return true;
                 }
             }
 
             Console.WriteLine("FAILED to obtain {0} information", this.TaskType);
-
             return false;
+        }
+
+        //---------------------------------------------------------------------
+        // Other Methods
+        //---------------------------------------------------------------------
+
+        /// <summary>
+        /// Sets the path to the information file.
+        /// </summary>
+        private void SetPaths()
+        {
+            if (string.IsNullOrWhiteSpace(this.InfoPath))
+            {
+                this.InfoPath = Path.Combine(this.ProjectDir, InfoFile);
+            }
         }
 
         /// <summary>
@@ -194,20 +229,6 @@ namespace OpenLib.BuildTasks
                     !string.IsNullOrWhiteSpace(this.Company) &&
                     !string.IsNullOrWhiteSpace(this.Version));
         }
-
-        /// <summary>
-        /// Gets a value indicating if the data contains the correct information
-        /// from the information file.
-        /// </summary>
-        /// <param name="reader">A reference to the <see cref="StreamReader" /> used to read the information file.</param>
-        /// <param name="data">Data containing the information.</param>
-        /// <remarks>
-        /// This must be overriden in derived classes to provide a value
-        /// indicating if the correct information is contained in the specified
-        /// data.
-        /// </remarks>
-        /// <returns>A value indicating if the correct information is contained in the specified data.</returns>
-        protected abstract bool ContainsData(StreamReader reader, ref string data);
 
         /// <summary>
         /// Sets information attributes using the specified data.

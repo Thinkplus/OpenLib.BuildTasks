@@ -14,20 +14,9 @@ namespace OpenLib.BuildTasks
     /// </remarks>
     public class CobolInfo : AbstractInfo
     {
-        /// <summary>
-        /// Defines the name of the MSBuild task.
-        /// </summary>
-        public override string TaskName { get { return this.GetType().Name; } }
-
-        /// <summary>
-        /// Defines the type of the MSBuild task.
-        /// </summary>
-        public override string TaskType { get { return "COBOL assembly"; } }
-
-        /// <summary>
-        /// Defines the path to the COBOL assembly information file.
-        /// </summary>
-        public override string InfoFile { get { return @"Properties\AssemblyInfo.cob"; } }
+        //---------------------------------------------------------------------
+        // Fields
+        //---------------------------------------------------------------------
 
         /// <summary>
         /// Defines a dictionary of attributes to read from the COBOL assembly
@@ -36,9 +25,24 @@ namespace OpenLib.BuildTasks
         private Dictionary<string, string> attributes;
 
         /// <summary>
-        /// Gets a dictionary of attributes to read from the COBOL assembly
-        /// information file.
+        /// Defines a list of values that should be contained on a line.
         /// </summary>
+        private readonly List<string> LineContains = new List<string>() { "CUSTOM-ATTRIBUTE" };
+
+        //---------------------------------------------------------------------
+        // Abstract Implementation Properties
+        //---------------------------------------------------------------------
+
+        /// <inheritdoc/>
+        public override string TaskName { get { return this.GetType().Name; } }
+
+        /// <inheritdoc/>
+        public override string TaskType { get { return "COBOL assembly"; } }
+
+        /// <inheritdoc/>
+        public override string InfoFile { get { return @"Properties\AssemblyInfo.cob"; } }
+
+        /// <inheritdoc/>
         protected override Dictionary<string, string> Attributes
         {
             get
@@ -57,30 +61,26 @@ namespace OpenLib.BuildTasks
             }
         }
 
-        /// <summary>
-        /// Defines a list of values that should be contained on a line.
-        /// </summary>
-        private readonly List<string> LineContains = new List<string>() { "CUSTOM-ATTRIBUTE" };
+        //---------------------------------------------------------------------
+        // Constructors
+        //---------------------------------------------------------------------
 
         /// <summary>
         /// Creates a new instance of the <c>CobolInfo</c> class.
         /// </summary>
         public CobolInfo() : base() { }
 
-        /// <summary>
-        /// Gets a value indicating if the data contains the correct information
-        /// from the information file.
-        /// </summary>
-        /// <param name="reader">A reference to the <see cref="StreamReader" /> used to read the information file.</param>
-        /// <param name="data">Data containing the information.</param>
-        /// <returns>A value indicating if the correct information is contained in the specified data.</returns>
+        //---------------------------------------------------------------------
+        // Abstract Implementation Methods
+        //---------------------------------------------------------------------
+
+        /// <inheritdoc/>
         protected override bool ContainsData(StreamReader reader, ref string data)
         {
             if (data.ContainedIn(LineContains) &&
                 data.ContainedIn(this.Attributes.Select(a => a.Value).ToList()))
             {
                 data += reader.ReadLine(); 
-
                 return true;
             }
 

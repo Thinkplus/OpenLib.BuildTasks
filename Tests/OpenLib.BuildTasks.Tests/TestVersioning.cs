@@ -24,6 +24,12 @@ namespace OpenLib.BuildTasks.Tests
             };
         }
 
+        /// <summary>
+        /// Gets the absolute path for the specified relative path using the
+        /// specified <see cref="CodeLanguage"/>.
+        /// </summary>
+        /// <param name="path">The relative path.</param>
+        /// <returns>An absolute path from the relative path and <see cref="CodeLanguage"/>.</returns>
         private string Get(CodeLanguage codeLang, string path)
         {
             return string.Format(VersionInfoPath, codeLang.ToString(), path);

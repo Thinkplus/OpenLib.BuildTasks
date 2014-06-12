@@ -15,6 +15,10 @@ namespace OpenLib.BuildTasks
     /// </summary>
     public class SonarVersioning : Task
     {
+        //---------------------------------------------------------------------
+        // Fields
+        //---------------------------------------------------------------------
+
         /// <summary>
         /// Defines the name of the Sonar project configuration file.
         /// </summary>
@@ -24,6 +28,10 @@ namespace OpenLib.BuildTasks
         /// Defines a list of values that should be contained on a line.
         /// </summary>
         private readonly List<string> LineContains = new List<string>() { "sonar.projectVersion" };
+
+        //---------------------------------------------------------------------
+        // Properties
+        //---------------------------------------------------------------------
 
         /// <summary>
         /// Gets or sets a reference to the I/O utilities.
@@ -57,6 +65,10 @@ namespace OpenLib.BuildTasks
         [Output]
         public string OutputFilePath { get; set; }
 
+        //---------------------------------------------------------------------
+        // Constructors
+        //---------------------------------------------------------------------
+
         /// <summary>
         /// Creates a new instance of the <c>SonarVersioning</c> class.
         /// </summary>
@@ -64,6 +76,10 @@ namespace OpenLib.BuildTasks
         {
             this.IoUtils = new IoUtils();
         }
+
+        //---------------------------------------------------------------------
+        // Abstract Implementation Methods
+        //---------------------------------------------------------------------
 
         /// <summary>
         /// Executes the custom task when it is invoked in a MSBuild script.
@@ -82,7 +98,6 @@ namespace OpenLib.BuildTasks
                 if (isSet)
                 {
                     Console.WriteLine("Attempting to apply version '{0}' to Sonar project configuration file", this.OutputFilePath);
-
                     string contents = this.Apply(this.OutputFilePath);
 
                     if (!string.IsNullOrWhiteSpace(contents))
@@ -101,9 +116,12 @@ namespace OpenLib.BuildTasks
             }
 
             Console.WriteLine("FAILED to apply version to Sonar project configuration file");
-
             return false;
         }
+
+        //---------------------------------------------------------------------
+        // Other Methods
+        //---------------------------------------------------------------------
 
         /// <summary>
         /// Sets the output file path first using the solution directory. If
@@ -173,7 +191,6 @@ namespace OpenLib.BuildTasks
                         }
 
                         stream.Close();
-
                         contents = fileBuilder.ToString();
                     }
                 }
@@ -197,7 +214,6 @@ namespace OpenLib.BuildTasks
             string value = version.Substring(startIndex, length);
 
             version = version.Replace(value, this.Version);
-
             return version;
         }
     }

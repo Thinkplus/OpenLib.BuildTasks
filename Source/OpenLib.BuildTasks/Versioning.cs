@@ -16,6 +16,10 @@ namespace OpenLib.BuildTasks
     /// </summary>
     public class Versioning : Task
     {
+        //---------------------------------------------------------------------
+        // Fields
+        //---------------------------------------------------------------------
+
         /// <summary>
         /// Defines the semantic versioning indicator.
         /// </summary>
@@ -71,6 +75,10 @@ namespace OpenLib.BuildTasks
             "EtlInformationalVersion",
             "CA-ASSEMBLYINFORMATIONALVERSION"
         };
+
+        //---------------------------------------------------------------------
+        // Properties
+        //---------------------------------------------------------------------
 
         /// <summary>
         /// Gets or sets a reference to the code information utilities.
@@ -170,6 +178,10 @@ namespace OpenLib.BuildTasks
         [Output]
         public string NextNewDevelopmentVersion { get; set; }
 
+        //---------------------------------------------------------------------
+        // Constructors
+        //---------------------------------------------------------------------
+
         /// <summary>
         /// Creates a new instance of the <c>Versioning</c> class.
         /// </summary>
@@ -178,6 +190,10 @@ namespace OpenLib.BuildTasks
             this.CodeInfoUtils = new CodeInfoUtils();
             this.IoUtils = new IoUtils();
         }
+
+        //---------------------------------------------------------------------
+        // Abstract Implementation Methods
+        //---------------------------------------------------------------------
 
         /// <summary>
         /// Executes the custom task when it is invoked in a MSBuild script.
@@ -211,9 +227,12 @@ namespace OpenLib.BuildTasks
             }
 
             Console.WriteLine("FAILED to apply version");
-
             return false;
         }
+
+        //---------------------------------------------------------------------
+        // Other Methods
+        //---------------------------------------------------------------------
 
         /// <summary>
         /// Sets the version info path for the defined code language and output
@@ -236,7 +255,8 @@ namespace OpenLib.BuildTasks
         /// the full version number.
         /// </summary>
         /// <param name="path">The path to the version info file.</param>
-        /// <param name="versionPart">The optional version number part to replace in the version info file.</param>
+        /// <param name="versionPart">The optional version number part to replace
+        /// in the version info file.</param>
         /// <returns>The updated contents of the version info file.</returns>
         private string Apply(string path, string versionPart)
         {
@@ -280,13 +300,11 @@ namespace OpenLib.BuildTasks
                                 }
 
                                 this.SetNextVersions();
-
                                 reader.Close();
                             }
                         }
 
                         stream.Close();
-
                         contents = fileBuilder.ToString();
                     }
                 }
@@ -298,9 +316,11 @@ namespace OpenLib.BuildTasks
         /// <summary>
         /// Formats the specified data and sets the split index, as necessary.
         /// </summary>
-        /// <param name="reader">A reference to the <see cref="StreamReader" /> used to read the information file.</param>
+        /// <param name="reader">A reference to the <see cref="StreamReader" />
+        /// used to read the information file.</param>
         /// <param name="data">Data containing the information.</param>
-        /// <param name="splitIndex">The split index for the data as an output parameter.</param>
+        /// <param name="splitIndex">The split index for the data as an output
+        /// parameter.</param>
         /// <returns>The formatted data.</returns>
         private string FormatData(StreamReader reader, string data, out int splitIndex)
         {
@@ -319,7 +339,8 @@ namespace OpenLib.BuildTasks
         /// <summary>
         /// Unformats the specified data using the split index, as necessary.
         /// </summary>
-        /// <param name="fileBuilder">A reference to the <see cref="StringBuilder" /> used to write the data to the information file.</param>
+        /// <param name="fileBuilder">A reference to the <see cref="StringBuilder" />
+        /// used to write the data to the information file.</param>
         /// <param name="data">Data containing the information.</param>
         /// <param name="splitIndex">The split index for the data.</param>
         /// <returns>The unformatted data.</returns>
@@ -431,7 +452,6 @@ namespace OpenLib.BuildTasks
             if (version.Contains(SemanticVersioningIndicator))
             {
                 int index = version.IndexOf(SemanticVersioningIndicator) + SemanticVersioningIndicator.Length;
-
                 version = version.Insert(index, DateTime.Now.ToString("yyyyMMddHHmm"));
             }
 
@@ -500,7 +520,6 @@ namespace OpenLib.BuildTasks
         {
             int startIndex = data.IndexOf("\"") + 1;
             int length = data.LastIndexOf("\"") - startIndex;
-
             return data.Substring(startIndex, length);
         }
 

@@ -19,6 +19,11 @@ namespace OpenLib.BuildTasks.Tests
             };
         }
 
+        /// <summary>
+        /// Gets the absolute path for the specified relative path.
+        /// </summary>
+        /// <param name="path">The relative path.</param>
+        /// <returns>An absolute path from the relative path.</returns>
         private string Get(string path = null)
         {
             return string.Concat(SolutionDir, path);

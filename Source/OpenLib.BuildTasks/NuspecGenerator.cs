@@ -15,6 +15,10 @@ namespace OpenLib.BuildTasks
     /// </summary>
     public class NuspecGenerator : Task
     {
+        //---------------------------------------------------------------------
+        // Fields
+        //---------------------------------------------------------------------
+
         /// <summary>
         /// Defines the extension of the Nuspec file.
         /// </summary>
@@ -36,6 +40,10 @@ namespace OpenLib.BuildTasks
             new Tuple<string, string>(@"**\*.cmd", "content"),
             new Tuple<string, string>(@"**\*.bat", "content")
         };
+
+        //---------------------------------------------------------------------
+        // Properties
+        //---------------------------------------------------------------------
 
         /// <summary>
         /// Gets or sets a reference to the code information utilities.
@@ -109,6 +117,10 @@ namespace OpenLib.BuildTasks
         [Output]
         public string NuspecFile { get; set; }
 
+        //---------------------------------------------------------------------
+        // Constructors
+        //---------------------------------------------------------------------
+
         /// <summary>
         /// Creates a new instance of the <c>NuspecGenerator</c> class.
         /// </summary>
@@ -117,6 +129,10 @@ namespace OpenLib.BuildTasks
             this.CodeInfoUtils = new CodeInfoUtils();
             this.IoUtils = new IoUtils();
         }
+
+        //---------------------------------------------------------------------
+        // Abstract Implementation Methods
+        //---------------------------------------------------------------------
 
         /// <summary>
         /// Executes the custom task when it is invoked in a MSBuild script.
@@ -163,14 +179,16 @@ namespace OpenLib.BuildTasks
 
                 nuspec.Save(this.NuspecFile);
                 Console.WriteLine("SUCCESSFULLY generated Nuspec file!");
-
                 return true;
             }
 
             Console.WriteLine("FAILED to generate Nuspec file");
-
             return false;
         }
+
+        //---------------------------------------------------------------------
+        // Other Methods
+        //---------------------------------------------------------------------
 
         /// <summary>
         /// Gets attributes required to generate the Nuspec file.
@@ -236,7 +254,8 @@ namespace OpenLib.BuildTasks
         /// <summary>
         /// Adds dependencies to the specified Nuspec document.
         /// </summary>
-        /// <param name="nuspec">The Nuspec document in which to add dependencies to.</param>
+        /// <param name="nuspec">The Nuspec document in which to add dependencies
+        /// to.</param>
         private void AddDependencies(XDocument nuspec)
         {
             List<Tuple<string, string, string>> items = new List<Tuple<string, string, string>>();
@@ -294,7 +313,8 @@ namespace OpenLib.BuildTasks
         /// <summary>
         /// Adds custom files to the specified Nuspec document.
         /// </summary>
-        /// <param name="nuspec">The Nuspec document in which to add custom files to.</param>
+        /// <param name="nuspec">The Nuspec document in which to add custom
+        /// files to.</param>
         /// <remarks>
         /// If the ExcludeDefaultFiles property is set to false, the default
         /// list of files will be added, otherwise, they will not be added. If

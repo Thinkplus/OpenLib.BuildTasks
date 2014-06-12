@@ -15,6 +15,11 @@ namespace OpenLib.BuildTasks.Tests
             task = new EtlInfo { ProjectDir = string.Empty };
         }
 
+        /// <summary>
+        /// Gets the absolute path for the specified relative path.
+        /// </summary>
+        /// <param name="path">The relative path.</param>
+        /// <returns>An absolute path from the relative path.</returns>
         private string Get(string path)
         {
             return string.Format(InfoPath, path);
@@ -24,7 +29,7 @@ namespace OpenLib.BuildTasks.Tests
         public void TestExcecutionDoesNotObtainEtlInfoWhenProjectDirIsNull()
         {
             // setup
-            // see SetUp
+            // N/A
 
             // execute
             bool result = task.Execute();
