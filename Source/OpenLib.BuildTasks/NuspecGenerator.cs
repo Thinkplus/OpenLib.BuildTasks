@@ -38,7 +38,16 @@ namespace OpenLib.BuildTasks
             new Tuple<string, string>(@"**\*.dtsConfig", "content"),
             new Tuple<string, string>(@"**\*.zip", "content"),
             new Tuple<string, string>(@"**\*.cmd", "content"),
-            new Tuple<string, string>(@"**\*.bat", "content")
+            new Tuple<string, string>(@"**\*.bat", "content"),
+            new Tuple<string, string>(@"**\*.svc", "content"),
+            new Tuple<string, string>(@"**\*.js", "content"),
+            new Tuple<string, string>(@"**\*.css", "content"),
+            new Tuple<string, string>(@"**\*.png", "content"),
+            new Tuple<string, string>(@"**\*.jpg", "content"),
+            new Tuple<string, string>(@"**\*.gif", "content"),
+            new Tuple<string, string>(@"**\*.cshtml", "content"),
+            new Tuple<string, string>(@"**\*.asax", "content"),
+            new Tuple<string, string>(@"**\*.aspx", "content")
         };
 
         //---------------------------------------------------------------------
