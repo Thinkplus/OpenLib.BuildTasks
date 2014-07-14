@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using OpenLib.Utils;
+using System.Text;
 
 namespace OpenLib.BuildTasks.Tests
 {
@@ -15,7 +16,6 @@ namespace OpenLib.BuildTasks.Tests
         public void SetUp()
         {
             codeInfoUtils = new CodeInfoUtils();
-
             task = new Versioning
             {
                 ProjectDir = string.Empty,
@@ -321,6 +321,7 @@ namespace OpenLib.BuildTasks.Tests
             // setup
             task.Language = codeInfoUtils.GetCodeLanguage(CodeLanguage.Cobol);
             task.VersionInfoPath = this.Get(CodeLanguage.Cobol, "Version.txt");
+            task.VersionInfoFileEncoding = Encoding.ASCII.BodyName;
 
             // execute
             bool result = task.Execute();

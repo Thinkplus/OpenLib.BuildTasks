@@ -21,6 +21,12 @@ namespace OpenLib.BuildTasks
         //---------------------------------------------------------------------
 
         /// <summary>
+        /// Defines the default <see cref="Encoding"/> for the version
+        /// information file.
+        /// </summary>
+        public readonly string DefaultVersionInfoFileEncoding = Encoding.UTF8.BodyName;
+
+        /// <summary>
         /// Defines the semantic versioning indicator.
         /// </summary>
         public const string SemanticVersioningIndicator = "-d";
@@ -91,6 +97,11 @@ namespace OpenLib.BuildTasks
         private CodeLanguage CodeLang { get; set; }
 
         /// <summary>
+        /// Gets or sets the <see cref="Encoding"/> for the code language.
+        /// </summary>
+        private Encoding CodeLangEncoding { get; set; }
+
+        /// <summary>
         /// Gets or sets a reference to the I/O utilities.
         /// </summary>
         public IIoUtils IoUtils { get; set; }
@@ -107,6 +118,12 @@ namespace OpenLib.BuildTasks
         /// </summary>
         [Required]
         public string Language { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="Encoding"/> used for the version
+        /// information file.
+        /// </summary>
+        public string VersionInfoFileEncoding { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating if the version is a release
@@ -189,6 +206,7 @@ namespace OpenLib.BuildTasks
         {
             this.CodeInfoUtils = new CodeInfoUtils();
             this.IoUtils = new IoUtils();
+            this.VersionInfoFileEncoding = DefaultVersionInfoFileEncoding;
         }
 
         //---------------------------------------------------------------------
@@ -203,18 +221,26 @@ namespace OpenLib.BuildTasks
         {
             Console.WriteLine("Executing Versioning MSBuild task...");
 
+            // ensure required properties are specified
             if (this.ProjectDir != null && this.Language != null)
             {
+                // set code language properties
                 this.CodeLang = this.CodeInfoUtils.GetCodeLanguage(this.Language);
+                this.CodeLangEncoding = Encoding.GetEncoding(this.VersionInfoFileEncoding);
+
+                // set path properties
                 this.SetPaths();
 
                 Console.WriteLine("Attempting to version '{0}'", this.OutputFilePath);
 
+                // apply versioning
                 string contents = this.Apply(this.OutputFilePath, this.VersionPart);
 
+                // if the contents of the version information file were returned,
+                // application of versioning was successful so write version information file
                 if (!string.IsNullOrWhiteSpace(contents))
                 {
-                    bool applied = this.IoUtils.WriteFile(this.OutputFilePath, contents);
+                    bool applied = this.IoUtils.WriteFile(this.OutputFilePath, contents, this.CodeLangEncoding);
 
                     if (applied)
                     {
