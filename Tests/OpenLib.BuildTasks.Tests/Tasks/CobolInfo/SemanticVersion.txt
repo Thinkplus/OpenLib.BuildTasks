@@ -28,7 +28,7 @@
              USING N"MyCOBOL"
            CUSTOM-ATTRIBUTE CA-ASSEMBLYFILEVERSION CLASS CLASS-ASSEMBLYFILEVERSION
              USING N"1.0.0.0"
-		   CUSTOM-ATTRIBUTE CA-ASSEMBLYINFORMATIONALVERSION CLASS CLASS-ASSEMBLYINFORMATIONALVERSION
+		   CUSTOM-ATTRIBUTE CA-ASSEMBLYINFOVERSION CLASS CLASS-ASSEMBLYINFOVERSION
              USING N"1.0.0"
            CUSTOM-ATTRIBUTE CA-ASSEMBLYCULTURE CLASS CLASS-ASSEMBLYCULTURE
              USING PROP-EMPTYSTRING OF CLASS-CLRUTIL
@@ -43,7 +43,7 @@
            CLASS CLASS-ASSEMBLYCULTURE AS "System.Reflection.AssemblyCultureAttribute"
            CLASS CLASS-ASSEMBLYDESCRIPTION AS "System.Reflection.AssemblyDescriptionAttribute"
            CLASS CLASS-ASSEMBLYFILEVERSION AS "System.Reflection.AssemblyFileVersionAttribute"
-           CLASS CLASS-ASSEMBLYINFORMATIONALVERSION AS "System.Reflection.AssemblyInformationalVersionAttribute"
+           CLASS CLASS-ASSEMBLYINFOVERSION AS "System.Reflection.AssemblyInformationalVersionAttribute"
            CLASS CLASS-ASSEMBLYPRODUCT AS "System.Reflection.AssemblyProductAttribute"
            CLASS CLASS-ASSEMBLYTITLE AS "System.Reflection.AssemblyTitleAttribute"
            CLASS CLASS-ASSEMBLYTRADEMARK AS "System.Reflection.AssemblyTrademarkAttribute"

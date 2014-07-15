@@ -41,7 +41,7 @@
            CLASS CLASS-ASSEMBLYCULTURE AS "System.Reflection.AssemblyCultureAttribute"
            CLASS CLASS-ASSEMBLYDESCRIPTION AS "System.Reflection.AssemblyDescriptionAttribute"
            CLASS CLASS-ASSEMBLYFILEVERSION AS "System.Reflection.AssemblyFileVersionAttribute"
-           CLASS CLASS-ASSEMBLYINFORMATIONALVERSION AS "System.Reflection.AssemblyInformationalVersionAttribute"
+           CLASS CLASS-ASSEMBLYINFOVERSION AS "System.Reflection.AssemblyInformationalVersionAttribute"
            CLASS CLASS-ASSEMBLYPRODUCT AS "System.Reflection.AssemblyProductAttribute"
            CLASS CLASS-ASSEMBLYTITLE AS "System.Reflection.AssemblyTitleAttribute"
            CLASS CLASS-ASSEMBLYTRADEMARK AS "System.Reflection.AssemblyTrademarkAttribute"

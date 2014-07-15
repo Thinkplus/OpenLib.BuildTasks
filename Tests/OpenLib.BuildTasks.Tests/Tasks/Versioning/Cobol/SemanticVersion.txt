@@ -12,13 +12,13 @@
              USING N"1.0.0.0"
            CUSTOM-ATTRIBUTE CA-ASSEMBLYFILEVERSION CLASS CLASS-ASSEMBLYFILEVERSION
              USING N"1.0.0.0"
-		   CUSTOM-ATTRIBUTE CA-ASSEMBLYINFORMATIONALVERSION CLASS CLASS-ASSEMBLYINFORMATIONALVERSION
+		   CUSTOM-ATTRIBUTE CA-ASSEMBLYINFOVERSION CLASS CLASS-ASSEMBLYINFOVERSION
              USING N"1.0.0-d"
              .
        REPOSITORY.
            CLASS CLASS-CLRUTIL AS "Fujitsu.COBOL.CLRUtil"
            CLASS CLASS-ASSEMBLYFILEVERSION AS "System.Reflection.AssemblyFileVersionAttribute"
-           CLASS CLASS-ASSEMBLYINFORMATIONALVERSION AS "System.Reflection.AssemblyInformationalVersionAttribute"
+           CLASS CLASS-ASSEMBLYINFOVERSION AS "System.Reflection.AssemblyInformationalVersionAttribute"
            CLASS CLASS-ASSEMBLYVERSION AS "System.Reflection.AssemblyVersionAttribute"
            PROPERTY PROP-EMPTYSTRING AS "EmptyString"
            .

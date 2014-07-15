@@ -45,7 +45,7 @@ namespace OpenLib.BuildTasks
             "EtlInformationalVersion",
             "CA-ASSEMBLYVERSION",
             "CA-ASSEMBLYFILEVERSION",
-            "CA-ASSEMBLYINFORMATIONALVERSION"
+            "CA-ASSEMBLYINFOVERSION"
         };
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace OpenLib.BuildTasks
             "CA-GUID",
             "CLASS CLASS-ASSEMBLYVERSION AS",
             "CLASS CLASS-ASSEMBLYFILEVERSION AS",
-            "CLASS CLASS-ASSEMBLYINFORMATIONALVERSION AS"
+            "CLASS CLASS-ASSEMBLYINFOVERSION AS"
         };
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace OpenLib.BuildTasks
             "AssemblyInformationalVersion",
             "DbInformationalVersion",
             "EtlInformationalVersion",
-            "CA-ASSEMBLYINFORMATIONALVERSION"
+            "CA-ASSEMBLYINFOVERSION"
         };
 
         //---------------------------------------------------------------------

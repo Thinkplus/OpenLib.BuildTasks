@@ -54,7 +54,7 @@ namespace OpenLib.BuildTasks
                         { "Description", "CA-ASSEMBLYDESCRIPTION" },
                         { "Company", "CA-ASSEMBLYCOMPANY" },
                         { "Version", "CA-ASSEMBLYVERSION" },
-                        { "SemanticVersion", "CA-ASSEMBLYINFORMATIONALVERSION" }
+                        { "SemanticVersion", "CA-ASSEMBLYINFOVERSION" }
                     };
 
                 return attributes; 
