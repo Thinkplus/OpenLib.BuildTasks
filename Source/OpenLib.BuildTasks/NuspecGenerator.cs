@@ -42,6 +42,7 @@ namespace OpenLib.BuildTasks
             new Tuple<string, string>(@"**\*.svc", "content"),
             new Tuple<string, string>(@"**\*.js", "content"),
             new Tuple<string, string>(@"**\*.css", "content"),
+            new Tuple<string, string>(@"**\*.ico", "content"),
             new Tuple<string, string>(@"**\*.png", "content"),
             new Tuple<string, string>(@"**\*.jpg", "content"),
             new Tuple<string, string>(@"**\*.gif", "content"),
