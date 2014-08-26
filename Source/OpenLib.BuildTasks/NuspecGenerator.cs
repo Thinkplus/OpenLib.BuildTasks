@@ -48,7 +48,8 @@ namespace OpenLib.BuildTasks
             new Tuple<string, string>(@"**\*.gif", "content"),
             new Tuple<string, string>(@"**\*.cshtml", "content"),
             new Tuple<string, string>(@"**\*.asax", "content"),
-            new Tuple<string, string>(@"**\*.aspx", "content")
+            new Tuple<string, string>(@"**\*.aspx", "content"),
+            new Tuple<string, string>(@"**\*.cob", "content")
         };
 
         //---------------------------------------------------------------------
